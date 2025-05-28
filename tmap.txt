@@ -1,0 +1,319 @@
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import $ from 'jquery';
+
+// 상수 정의
+const TMAP_API_KEY = '발급받은 Appkey';
+const INITIAL_CENTER = {
+  lat: 37.49241689559544,
+  lng: 127.03171389453507
+};
+const START_POINT = {
+  lat: 37.566567545861645,
+  lng: 126.9850380932383
+};
+const END_POINT = {
+  lat: 37.403049076341794,
+  lng: 127.10331814639885
+};
+
+const TRAFFIC_COLORS = {
+  0: "#06050D", // 정보없음
+  1: "#61AB25", // 원활
+  2: "#FFFF00", // 서행
+  3: "#E87506", // 지체
+  4: "#D61125"  // 정체
+};
+
+const MARKER_IMAGES = {
+  S: "/upload/tmap/marker/pin_r_m_s.png",
+  E: "/upload/tmap/marker/pin_r_m_e.png",
+  P: "http://topopen.tmap.co.kr/imgs/point.png"
+};
+
+const TmapComponent = () => {
+  const mapRef = useRef(null);
+  const [map, setMap] = useState(null);
+  const [markerInfo, setMarkerInfo] = useState(null);
+  const [marker_s, setMarker_s] = useState(null);
+  const [marker_e, setMarker_e] = useState(null);
+  const [marker_p, setMarker_p] = useState(null);
+  const [drawInfoArr, setDrawInfoArr] = useState([]);
+  const [drawInfoArr2, setDrawInfoArr2] = useState([]);
+  const [chktraffic, setChktraffic] = useState([]);
+  const [resultdrawArr, setResultdrawArr] = useState([]);
+  const [resultMarkerArr, setResultMarkerArr] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  // Tmap 스크립트 로드
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = `https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=${TMAP_API_KEY}`;
+    script.async = true;
+    
+    script.onload = () => {
+      initTmap();
+    };
+    
+    script.onerror = () => {
+      setError('Tmap 스크립트 로드 실패');
+    };
+
+    document.head.appendChild(script);
+
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, []);
+
+  // 지도 초기화
+  const initTmap = useCallback(() => {
+    if (!window.Tmapv2 || !mapRef.current) return;
+
+    try {
+      const newMap = new window.Tmapv2.Map(mapRef.current, {
+        center: new window.Tmapv2.LatLng(INITIAL_CENTER.lat, INITIAL_CENTER.lng),
+        width: "100%",
+        height: "400px",
+        zoom: 11,
+        zoomControl: true,
+        scrollwheel: true
+      });
+      setMap(newMap);
+
+      // 시작 마커
+      const startMarker = new window.Tmapv2.Marker({
+        position: new window.Tmapv2.LatLng(START_POINT.lat, START_POINT.lng),
+        icon: MARKER_IMAGES.S,
+        iconSize: new window.Tmapv2.Size(24, 38),
+        map: newMap
+      });
+      setMarker_s(startMarker);
+
+      // 도착 마커
+      const endMarker = new window.Tmapv2.Marker({
+        position: new window.Tmapv2.LatLng(END_POINT.lat, END_POINT.lng),
+        icon: MARKER_IMAGES.E,
+        iconSize: new window.Tmapv2.Size(24, 38),
+        map: newMap
+      });
+      setMarker_e(endMarker);
+    } catch (err) {
+      setError('지도 초기화 실패');
+      console.error('지도 초기화 에러:', err);
+    }
+  }, []);
+
+  // 마커 추가
+  const addMarkers = useCallback((infoObj) => {
+    if (!map) return;
+
+    try {
+      const size = new window.Tmapv2.Size(
+        infoObj.pointType === "P" ? 8 : 24,
+        infoObj.pointType === "P" ? 8 : 38
+      );
+
+      const newMarker = new window.Tmapv2.Marker({
+        position: new window.Tmapv2.LatLng(infoObj.lat, infoObj.lng),
+        icon: infoObj.markerImage,
+        iconSize: size,
+        map: map
+      });
+
+      setResultMarkerArr(prev => [...prev, newMarker]);
+    } catch (err) {
+      console.error('마커 추가 에러:', err);
+    }
+  }, [map]);
+
+  // 경로 그리기
+  const drawLine = useCallback((arrPoint, traffic) => {
+    if (!map) return;
+
+    try {
+      let polyline_;
+      if (chktraffic.length !== 0) {
+        if (traffic !== "0") {
+          if (traffic.length === 0) {
+            polyline_ = new window.Tmapv2.Polyline({
+              path: arrPoint,
+              strokeColor: TRAFFIC_COLORS[0],
+              strokeWeight: 6,
+              map: map
+            });
+            setResultdrawArr(prev => [...prev, polyline_]);
+          } else {
+            const tInfo = traffic.map(t => ({
+              startIndex: t[0],
+              endIndex: t[1],
+              trafficIndex: t[2]
+            }));
+
+            tInfo.forEach(info => {
+              const sectionPoint = arrPoint.slice(info.startIndex, info.endIndex + 1);
+              const lineColor = TRAFFIC_COLORS[info.trafficIndex] || TRAFFIC_COLORS[0];
+
+              polyline_ = new window.Tmapv2.Polyline({
+                path: sectionPoint,
+                strokeColor: lineColor,
+                strokeWeight: 6,
+                map: map
+              });
+              setResultdrawArr(prev => [...prev, polyline_]);
+            });
+          }
+        }
+      } else {
+        polyline_ = new window.Tmapv2.Polyline({
+          path: arrPoint,
+          strokeColor: "#DD0000",
+          strokeWeight: 6,
+          map: map
+        });
+        setResultdrawArr(prev => [...prev, polyline_]);
+      }
+    } catch (err) {
+      console.error('경로 그리기 에러:', err);
+    }
+  }, [map, chktraffic]);
+
+  // 지도 초기화
+  const resettingMap = useCallback(() => {
+    try {
+      if (marker_s) marker_s.setMap(null);
+      if (marker_e) marker_e.setMap(null);
+
+      resultMarkerArr.forEach(marker => marker.setMap(null));
+      resultdrawArr.forEach(line => line.setMap(null));
+
+      setChktraffic([]);
+      setDrawInfoArr([]);
+      setResultMarkerArr([]);
+      setResultdrawArr([]);
+    } catch (err) {
+      console.error('지도 초기화 에러:', err);
+    }
+  }, [marker_s, marker_e, resultMarkerArr, resultdrawArr]);
+
+  // 경로 검색
+  const handleRouteSearch = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    resettingMap();
+
+    try {
+      const searchOption = document.getElementById("selectLevel").value;
+      const trafficInfochk = document.getElementById("year").value;
+      const headers = { appKey: TMAP_API_KEY };
+
+      const response = await $.ajax({
+        type: "POST",
+        headers: headers,
+        url: `https://apis.openapi.sk.com/tmap/routes?version=1&format=json&callback=result&appKey=${TMAP_API_KEY}`,
+        data: {
+          startX: START_POINT.lng,
+          startY: START_POINT.lat,
+          endX: END_POINT.lng,
+          endY: END_POINT.lat,
+          reqCoordType: "WGS84GEO",
+          resCoordType: "EPSG3857",
+          searchOption: searchOption,
+          trafficInfo: trafficInfochk
+        }
+      });
+
+      const resultData = response.features;
+      const result = resultData[0].properties;
+      
+      const resultText = `총 거리: ${(result.totalDistance / 1000).toFixed(1)}km, 
+                        총 시간: ${(result.totalTime / 60).toFixed(0)}분, 
+                        총 요금: ${result.totalFare}원, 
+                        예상 택시 요금: ${result.taxiFare}원`;
+      
+      document.getElementById("result").textContent = resultText;
+
+      resultData.forEach(data => {
+        if (data.geometry.type === "LineString") {
+          const coordinates = data.geometry.coordinates.map(coord => {
+            const point = new window.Tmapv2.Point(coord[0], coord[1]);
+            return window.Tmapv2.Projection.convertEPSG3857ToWGS84GEO(point);
+          });
+          drawLine(coordinates, data.geometry.traffic);
+        } else {
+          const point = new window.Tmapv2.Point(
+            data.geometry.coordinates[0],
+            data.geometry.coordinates[1]
+          );
+          const convertPoint = window.Tmapv2.Projection.convertEPSG3857ToWGS84GEO(point);
+          
+          const markerInfo = {
+            markerImage: MARKER_IMAGES[data.properties.pointType] || MARKER_IMAGES.P,
+            lng: convertPoint._lng,
+            lat: convertPoint._lat,
+            pointType: data.properties.pointType
+          };
+          addMarkers(markerInfo);
+        }
+      });
+    } catch (err) {
+      setError('경로 검색 실패');
+      console.error('경로 검색 에러:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [resettingMap, drawLine, addMarkers]);
+
+  // 옵션 목록 메모이제이션
+  const routeOptions = useMemo(() => [
+    { value: "0", label: "교통최적+추천" },
+    { value: "1", label: "교통최적+무료우선" },
+    { value: "2", label: "교통최적+최소시간" },
+    { value: "3", label: "교통최적+초보" },
+    { value: "4", label: "교통최적+고속도로우선" },
+    { value: "10", label: "최단거리+유/무료" },
+    { value: "12", label: "이륜차도로우선" },
+    { value: "19", label: "교통최적+어린이보호구역 회피" }
+  ], []);
+
+  if (error) {
+    return <div className="error-message">{error}</div>;
+  }
+
+  return (
+    <div>
+      <div className="ft_area">
+        <div className="ft_select_wrap">
+          <div className="ft_select">
+            <select id="selectLevel">
+              {routeOptions.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <select id="year">
+              <option value="N">교통정보 표출 옵션</option>
+              <option value="Y">Y</option>
+              <option value="N">N</option>
+            </select>
+            <button 
+              onClick={handleRouteSearch}
+              disabled={loading}
+            >
+              {loading ? '검색 중...' : '적용하기'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="map_wrap" className="map_wrap">
+        <div ref={mapRef} style={{ width: "100%", height: "400px" }}></div>
+      </div>
+      
+      <p id="result"></p>
+    </div>
+  );
+};
+
+export default TmapComponent; 
