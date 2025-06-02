@@ -18,6 +18,7 @@ function App() {
   const [savedSettings, setSavedSettings] = useState(null)
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const [hasPreviousTravel, setHasPreviousTravel] = useState(false);  // 이전 여행지 생성 여부 추적
 
   // 지도, 마커, 원, 폴리곤 등 지도 객체를 저장할 ref 선언
   const mapRef = useRef(null);
@@ -72,6 +73,8 @@ function App() {
                   markerRef.current = new window.Tmapv2.Marker({
                     position: new window.Tmapv2.LatLng(latitude, longitude),
                     map: mapInstanceRef.current,
+                    icon: process.env.PUBLIC_URL + '/images/me.png',
+                    iconSize: new window.Tmapv2.Size(40, 40)
                   });
                   mapInstanceRef.current.setCenter(new window.Tmapv2.LatLng(latitude, longitude));
                 }
@@ -173,6 +176,11 @@ function App() {
     const reduction = reductionTable[transport] || 1;
     outerRadius = outerRadius * reduction;
 
+    // 자동차의 경우 도넛 범위를 70% 작게 조정
+    if (transport === 'car') {
+      outerRadius = outerRadius * 0.3; // 30%로 축소 (70% 감소)
+    }
+
     const innerRadius = outerRadius * 0.72;
 
     // 외부/내부 원 그리기 (투명)
@@ -180,9 +188,9 @@ function App() {
       center: new window.Tmapv2.LatLng(latitude, longitude),
       radius: outerRadius,
       strokeWeight: 2,
-      strokeColor: "#3399ff",
-      strokeOpacity: 0.7,
-      fillColor: "#3399ff",
+      strokeColor: "#DD0000",
+      strokeOpacity: 0.4,
+      fillColor: "#DD0000",
       fillOpacity: 0,
       map: mapInstanceRef.current,
     });
@@ -191,9 +199,9 @@ function App() {
       center: new window.Tmapv2.LatLng(latitude, longitude),
       radius: innerRadius,
       strokeWeight: 2,
-      strokeColor: "#3399ff",
-      strokeOpacity: 0.7,
-      fillColor: "#3399ff",
+      strokeColor: "#DD0000",
+      strokeOpacity: 0.4,
+      fillColor: "#DD0000",
       fillOpacity: 0,
       map: mapInstanceRef.current,
     });
@@ -228,22 +236,20 @@ function App() {
     ringPolygonRef.current = new window.Tmapv2.Polygon({
       paths: ringPath,
       strokeWeight: 2,
-      strokeColor: "#3399ff",
-      strokeOpacity: 0.7,
-      fillColor: "#3399ff",
-      fillOpacity: 0.2,
+      strokeColor: "#DD0000",
+      strokeOpacity: 0.6,
+      fillColor: "#DD0000",
+      fillOpacity: 0.08,
       map: mapInstanceRef.current,
     });
 
   }, [selectedTransports, time])
 
-  // 경로 생성 함수
-  const createRoute = useCallback(async (startPoint, endPoint) => {
+  // 기존 createRoute → createCarRoute로 이름 변경 및 자동차 전용
+  const createCarRoute = useCallback(async (startPoint, endPoint) => {
     if (!mapInstanceRef.current) return;
-
     try {
       const headers = { appKey: TMAP_API_KEY };
-      
       const response = await $.ajax({
         type: "POST",
         headers: headers,
@@ -255,64 +261,47 @@ function App() {
           endY: endPoint.lat,
           reqCoordType: "WGS84GEO",
           resCoordType: "EPSG3857",
-          searchOption: selectedTransports.includes('car') ? "0" : "1", // 0: 자동차, 1: 대중교통
+          searchOption: "0", // 자동차
           trafficInfo: "Y"
         }
       });
-
       const resultData = response.features;
       const result = resultData[0].properties;
-      
-      // 경로 정보 저장
       setRouteInfo({
         distance: (result.totalDistance / 1000).toFixed(1),
         time: (result.totalTime / 60).toFixed(0),
         fare: result.totalFare
       });
-
-      // 기존 경로 제거
-      if (routeLine) {
-        routeLine.setMap(null);
-      }
-
-      // 새로운 경로 그리기
+      if (routeLine) routeLine.setMap(null);
       resultData.forEach(data => {
         if (data.geometry.type === "LineString") {
           const coordinates = data.geometry.coordinates.map(coord => {
             const point = new window.Tmapv2.Point(coord[0], coord[1]);
             return window.Tmapv2.Projection.convertEPSG3857ToWGS84GEO(point);
           });
-
-          // 교통 상황에 따른 색상 설정
           const trafficColors = {
-            0: "#06050D", // 정보없음
-            1: "#61AB25", // 원활
-            2: "#FFFF00", // 서행
-            3: "#E87506", // 지체
-            4: "#D61125"  // 정체
+            0: "#06050D", 1: "#61AB25", 2: "#FFFF00", 3: "#E87506", 4: "#D61125"
           };
-
           if (data.geometry.traffic && data.geometry.traffic.length > 0) {
-            // 교통 상황별로 다른 색상의 선 그리기
             data.geometry.traffic.forEach(traffic => {
               const sectionPoint = coordinates.slice(traffic[0], traffic[1] + 1);
               const lineColor = trafficColors[traffic[2]] || trafficColors[0];
-
               const polyline = new window.Tmapv2.Polyline({
                 path: sectionPoint,
                 strokeColor: lineColor,
                 strokeWeight: 6,
-                map: mapInstanceRef.current
+                map: mapInstanceRef.current,
+                className: 'path-animation'
               });
               setRouteLine(polyline);
             });
           } else {
-            // 교통 정보가 없는 경우 기본 색상으로 그리기
             const polyline = new window.Tmapv2.Polyline({
               path: coordinates,
               strokeColor: "#DD0000",
               strokeWeight: 6,
-              map: mapInstanceRef.current
+              map: mapInstanceRef.current,
+              className: 'path-animation'
             });
             setRouteLine(polyline);
           }
@@ -322,9 +311,97 @@ function App() {
       console.error('경로 생성 에러:', error);
       alert('경로를 생성하는데 실패했습니다.');
     }
-  }, [selectedTransports, routeLine]);
+  }, [routeLine]);
 
-  // 랜덤 여행 버튼 클릭 핸들러 수정
+  // 대중교통 경로 생성 함수
+  const createTransitRoute = useCallback(async (startPoint, endPoint) => {
+    if (!mapInstanceRef.current) return;
+    try {
+      const response = await fetch('https://apis.openapi.sk.com/transit/routes', {
+        method: 'POST',
+        headers: {
+          accept: 'application/json',
+          'content-type': 'application/json',
+          appKey: TMAP_API_KEY
+        },
+        body: JSON.stringify({
+          startX: startPoint.lng,
+          startY: startPoint.lat,
+          endX: endPoint.lng,
+          endY: endPoint.lat,
+          lang: 0,
+          format: 'json',
+          count: 1
+        })
+      });
+      const data = await response.json();
+      // 기존 경로 제거
+      if (routeLine) routeLine.setMap(null);
+      
+      let totalDistance = 0;
+      let totalTime = 0;
+      let totalFare = 0;
+
+      if (data.metaData && data.metaData.plan && data.metaData.plan.itineraries && data.metaData.plan.itineraries.length > 0) {
+        const itinerary = data.metaData.plan.itineraries[0];
+        totalDistance = itinerary.distance / 1000;
+        totalTime = Math.round(itinerary.duration / 60);
+        totalFare = itinerary.fare ? itinerary.fare.regular.totalFare : 0;
+
+        // 각 구간별로 다른 색상의 경로 표시
+        itinerary.legs.forEach((leg, index) => {
+          if (leg.mode === 'WALK' || leg.mode === 'BUS' || leg.mode === 'SUBWAY') {
+            const legPath = leg.passShape && leg.passShape.linestring
+              ? leg.passShape.linestring.split(' ').map(pair => {
+                  const [lng, lat] = pair.split(',').map(Number);
+                  return new window.Tmapv2.LatLng(lat, lng);
+                })
+              : [];
+
+            if (legPath.length > 1) {
+              // 이동 수단별 색상 설정
+              let strokeColor;
+              switch (leg.mode) {
+                case 'WALK':
+                  strokeColor = '#666666'; // 도보: 회색
+                  break;
+                case 'BUS':
+                  strokeColor = '#3399ff'; // 버스: 파란색
+                  break;
+                case 'SUBWAY':
+                  strokeColor = '#ff6600'; // 지하철: 주황색
+                  break;
+                default:
+                  strokeColor = '#666666';
+              }
+
+              const polyline = new window.Tmapv2.Polyline({
+                path: legPath,
+                strokeColor: strokeColor,
+                strokeWeight: 6,
+                map: mapInstanceRef.current,
+                className: 'path-animation'
+              });
+              setRouteLine(polyline);
+            }
+          }
+        });
+
+        setRouteInfo({
+          distance: totalDistance.toFixed(1),
+          time: totalTime,
+          fare: totalFare
+        });
+      } else {
+        alert('대중교통 경로를 찾을 수 없습니다.');
+      }
+    } catch (error) {
+      console.error('대중교통 경로 생성 에러:', error);
+      alert('대중교통 경로를 생성하는데 실패했습니다.');
+    }
+  }, [routeLine]);
+
+  // handleRandomTravel에서 분기 호출
   const handleRandomTravel = useCallback(() => {
     if (
       !markerRef.current ||
@@ -335,77 +412,71 @@ function App() {
       alert('지도를 초기화하거나 이동수단/시간을 선택해주세요.');
       return;
     }
-
-    // 중심과 반지름 정보 가져오기
     const center = outerCircleRef.current.getCenter();
     const outerRadius = outerCircleRef.current.getRadius();
     const innerRadius = innerCircleRef.current.getRadius();
-
-    // 도넛 영역 내에 있는 위치만 필터링
     const latConv = 111320;
     const lngConv = 111320 * Math.cos((center.lat() * Math.PI) / 180);
-
     const filterInDonut = locations.filter(({ lat, lng }) => {
       const dLat = (lat - center.lat()) * latConv;
       const dLng = (lng - center.lng()) * lngConv;
       const dist = Math.sqrt(dLat * dLat + dLng * dLng);
       return dist >= innerRadius && dist <= outerRadius;
     });
-
     if (filterInDonut.length === 0) {
-      alert('도넛 영역 내에 여행지가 없습니다.');
+      alert('해당 조건 내 여행지가 없습니다.');
       return;
     }
-
-    // 랜덤 위치 선택
     const randomIdx = Math.floor(Math.random() * filterInDonut.length);
     const selectedLoc = filterInDonut[randomIdx];
     setSelectedLocation(selectedLoc);
-
-    // 기존 랜덤 마커 제거
-    if (window._randomTravelMarkerA) {
-      window._randomTravelMarkerA.setMap(null);
-    }
-    if (window._randomTravelMarkerB) {
-      window._randomTravelMarkerB.setMap(null);
-    }
-
-    // 출발지 마커
+    if (window._randomTravelMarkerA) window._randomTravelMarkerA.setMap(null);
+    if (window._randomTravelMarkerB) window._randomTravelMarkerB.setMap(null);
     window._randomTravelMarkerA = new window.Tmapv2.Marker({
       position: center,
       map: mapInstanceRef.current,
-      label: 'A',
+      icon: process.env.PUBLIC_URL + '/images/me.png',
+      iconSize: new window.Tmapv2.Size(40, 40),
+      className: 'marker-animation'
     });
-
-    // 도착지 마커
     window._randomTravelMarkerB = new window.Tmapv2.Marker({
       position: new window.Tmapv2.LatLng(selectedLoc.lat, selectedLoc.lng),
       map: mapInstanceRef.current,
+      icon: process.env.PUBLIC_URL + '/images/trip.png',
+      iconSize: new window.Tmapv2.Size(40, 40),
+      label: selectedLoc.name,
+      labelStyle: {
+        backgroundColor: '#FFFFFF',
+        color: '#000000',
+        fontSize: '14px',
+        padding: '4px 8px',
+        borderRadius: '4px'
+      },
+      className: 'marker-animation'
     });
-
-    // 기존 InfoWindow 제거
-    if (window._randomTravelInfoWindowB) {
-      window._randomTravelInfoWindowB.setMap(null);
+    if (window._randomTravelInfoWindowB) window._randomTravelInfoWindowB.setMap(null);
+    // 이동수단에 따라 분기
+    if (selectedTransports.includes('car')) {
+      createCarRoute(
+        { lat: center.lat(), lng: center.lng() },
+        { lat: selectedLoc.lat, lng: selectedLoc.lng }
+      );
+    } else if (selectedTransports.includes('public')) {
+      createTransitRoute(
+        { lat: center.lat(), lng: center.lng() },
+        { lat: selectedLoc.lat, lng: selectedLoc.lng }
+      );
     }
-
-    // 관광지명 InfoWindow 생성
-    window._randomTravelInfoWindowB = new window.Tmapv2.InfoWindow({
-      position: new window.Tmapv2.LatLng(selectedLoc.lat, selectedLoc.lng),
-      content: `<div style="background:#fff;padding:4px 8px;border-radius:6px;border:1px solid #3399ff;font-size:14px;white-space:nowrap;">${selectedLoc.name}</div>`,
-      type: 2,
-      map: mapInstanceRef.current,
-      offset: new window.Tmapv2.Point(0, -30),
+    // 지도 이동 애니메이션
+    const bounds = new window.Tmapv2.LatLngBounds();
+    bounds.extend(center);
+    bounds.extend(new window.Tmapv2.LatLng(selectedLoc.lat, selectedLoc.lng));
+    mapInstanceRef.current.fitBounds(bounds, {
+      padding: 50,
+      duration: 1000
     });
-
-    // 경로 생성
-    createRoute(
-      { lat: center.lat(), lng: center.lng() },
-      { lat: selectedLoc.lat, lng: selectedLoc.lng }
-    );
-
-    // 지도 중심 이동
-    mapInstanceRef.current.setCenter(new window.Tmapv2.LatLng(selectedLoc.lat, selectedLoc.lng));
-  }, [createRoute, locations]);
+    setHasPreviousTravel(true);
+  }, [createCarRoute, createTransitRoute, locations, selectedTransports]);
 
   // 설정 저장 함수
   const saveSettings = useCallback(() => {
@@ -421,19 +492,44 @@ function App() {
   // 저장된 설정으로 랜덤 여행 시작
   const handleRandomTravelWithSettings = useCallback(() => {
     if (savedSettings) {
-      setSelectedTransports(savedSettings.selectedTransports);
-      setTime(savedSettings.time);
-      setAddress(savedSettings.address);
-      
-      // 약간의 지연 후 랜덤 여행 시작
-      setTimeout(() => {
+      if (hasPreviousTravel) {
+        // 이전에 여행지가 생성된 경우, 초기화 확인
+        if (window.confirm('기존 여행을 초기화하고 재설정 해야합니다. 초기화 하시겠습니까?')) {
+          // 새로고침 전에 hasPreviousTravel을 false로 설정
+          setHasPreviousTravel(false);
+          window.location.reload();
+        }
+      } else {
+        // 첫 여행지 생성인 경우, 바로 생성
         handleRandomTravel();
-      }, 100);
+      }
     } else {
       alert('먼저 설정을 저장해주세요.');
       setIsSettingsOpen(true);
     }
-  }, [savedSettings, handleRandomTravel]);
+  }, [savedSettings, hasPreviousTravel, handleRandomTravel]);
+
+  // 네비게이션 함수 추가
+  const openNavigation = useCallback(() => {
+    if (!selectedLocation) {
+      alert('먼저 여행지를 선택해주세요.');
+      return;
+    }
+
+    const url = `https://apis.openapi.sk.com/tmap/app/routes?appKey=${TMAP_API_KEY}&goalname=${encodeURIComponent(selectedLocation.name)}&goalx=${selectedLocation.lng}&goaly=${selectedLocation.lat}`;
+    window.open(url, '_blank');
+  }, [selectedLocation]);
+
+  // 음식점 찾기 함수 추가
+  const openNearbyRestaurants = useCallback(() => {
+    if (!selectedLocation) {
+      alert('먼저 여행지를 선택해주세요.');
+      return;
+    }
+
+    const url = `https://apis.openapi.sk.com/tmap/app/nearby?appKey=${TMAP_API_KEY}&host=nearby&lat=${selectedLocation.lat}&lon=${selectedLocation.lng}&category=음식점`;
+    window.open(url, '_blank');
+  }, [selectedLocation]);
 
   // 렌더링 부분
   return (
@@ -456,6 +552,13 @@ function App() {
           {/* 지도 표시 */}
           <div className="map-container">
             <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
+            <button 
+              className="current-location-btn"
+              onClick={getCurrentLocation}
+              title="현재 위치로 이동"
+            >
+              <i className="fas fa-location-crosshairs"></i>
+            </button>
           </div>
 
           {/* 여행 정보 표시 */}
@@ -464,29 +567,50 @@ function App() {
               <div className="travel-info-section">
                 <div className="travel-info-header">
                   <h3 className="section-title">여행 정보</h3>
-                  <button 
-                    className="detail-btn"
-                    onClick={() => setIsDetailOpen(true)}
-                    title="상세 정보 보기"
-                  >
-                    <i className="fas fa-info-circle"></i>
-                  </button>
+                  <div className="travel-info-buttons">
+                    <button 
+                      className="detail-btn"
+                      onClick={() => setIsDetailOpen(true)}
+                      title="상세 정보 보기"
+                    >
+                      <i className="fas fa-info-circle"></i>
+                    </button>
+                    <button 
+                      className="restaurant-btn"
+                      onClick={openNearbyRestaurants}
+                      title="주변 음식점 찾기"
+                    >
+                      <i className="fas fa-utensils"></i>
+                    </button>
+                    <button 
+                      className="nav-btn"
+                      onClick={openNavigation}
+                      title="티맵 네비게이션 열기"
+                    >
+                      <i className="fas fa-directions"></i>
+                    </button>
+                  </div>
                 </div>
                 <div className="route-info">
+                  {routeInfo.fare > 0 ? (
+                    <div className="route-info-item">
+                      <i className="fas fa-won-sign"></i>
+                      <span>{routeInfo.fare}원</span>
+                    </div>
+                  ) : (
+                    <div className="route-info-item">
+                      <i className="fas fa-map-marker-alt"></i>
+                      <span>{selectedLocation.name}</span>
+                    </div>
+                  )}
                   <div className="route-info-item">
                     <i className="fas fa-road"></i>
-                    <span>총 거리: {routeInfo.distance}km</span>
+                    <span>{routeInfo.distance}km</span>
                   </div>
                   <div className="route-info-item">
                     <i className="fas fa-clock"></i>
-                    <span>예상 소요 시간: {routeInfo.time}분</span>
+                    <span>{routeInfo.time}분</span>
                   </div>
-                  {routeInfo.fare > 0 && (
-                    <div className="route-info-item">
-                      <i className="fas fa-won-sign"></i>
-                      <span>예상 요금: {routeInfo.fare}원</span>
-                    </div>
-                  )}
                 </div>
               </div>
             ) : (
@@ -510,7 +634,14 @@ function App() {
 
       {/* 설정 팝업 */}
       {isSettingsOpen && (
-        <div className="settings-popup-overlay">
+        <div 
+          className="settings-popup-overlay"
+          onClick={(e) => {
+            if (e.target.className === 'settings-popup-overlay') {
+              saveSettings();
+            }
+          }}
+        >
           <div className="settings-popup">
             <div className="settings-popup-header">
               <h2>설정</h2>
@@ -524,72 +655,72 @@ function App() {
             </div>
             <div className="settings-popup-content">
               <div className="settings-grid">
-                {/* 현재 위치 입력/버튼 */}
-                <section className="location-section">
-                  <h3 className="section-title">현재 위치</h3>
-                  <div className="location-input-wrapper">
-                    <input
-                      type="text"
-                      placeholder="위치를 입력하세요"
-                      className="location-input"
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                    />
+          {/* 현재 위치 입력/버튼 */}
+          <section className="location-section">
+            <h3 className="section-title">현재 위치</h3>
+            <div className="location-input-wrapper">
+              <input
+                type="text"
+                placeholder="위치를 입력하세요"
+                className="location-input"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
                     <button 
                       className="location-btn" 
                       onClick={getCurrentLocation}
                       title="현재 위치 가져오기"
                     >
                       <i className="fas fa-location-crosshairs"></i>
-                    </button>
-                  </div>
-                </section>
+              </button>
+            </div>
+          </section>
 
-                {/* 이동수단 선택 */}
-                <section className="transport-section">
+          {/* 이동수단 선택 */}
+          <section className="transport-section">
                   <h3 className="section-title">이동 수단</h3>
-                  <div className="transport-grid">
-                    {[
+            <div className="transport-grid">
+              {[
                       { icon: 'car', type: 'car', label: '자동차' },
                       { icon: 'bus', type: 'public', label: '대중교통' },
-                    ].map((item) => (
-                      <button
+              ].map((item) => (
+                <button
                         key={item.type}
                         className={`transport-btn ${selectedTransports.includes(item.type)
-                          ? 'transport-btn-selected'
-                          : 'transport-btn-default'
-                          }`}
+                    ? 'transport-btn-selected'
+                    : 'transport-btn-default'
+                    }`}
                         onClick={() => toggleTransport(item.type)}
-                      >
+                >
                         <i className={`fas fa-${item.icon}`}></i>
                         <span>{item.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </section>
+                </button>
+              ))}
+            </div>
+          </section>
 
-                {/* 시간 설정 */}
-                <section className="time-section">
-                  <h3 className="section-title">여행 시간</h3>
-                  <div className="time-range-container">
-                    <input
-                      type="range"
-                      min="20"
-                      max="720"
-                      value={time}
-                      onChange={(e) => setTime(parseInt(e.target.value))}
-                      className="time-range-slider"
-                      step="10"
-                    />
-                    <div className="time-range-labels">
-                      <span>20분</span>
-                      <span className="current-time">
-                        {Math.floor(time / 60)}시간 {time % 60}분
-                      </span>
-                      <span>12시간</span>
-                    </div>
-                  </div>
-                </section>
+          {/* 시간 설정 */}
+          <section className="time-section">
+            <h3 className="section-title">여행 시간</h3>
+            <div className="time-range-container">
+              <div className="time-range-labels">
+                <span>20분</span>
+                <span className="current-time">
+                  {Math.floor(time / 60)}시간 {time % 60}분
+                </span>
+                <span>12시간</span>
+              </div>
+              <input
+                type="range"
+                min="20"
+                max="720"
+                value={time}
+                onChange={(e) => setTime(parseInt(e.target.value))}
+                className="time-range-slider"
+                step="10"
+              />
+            </div>
+          </section>
               </div>
             </div>
           </div>
@@ -598,11 +729,18 @@ function App() {
 
       {/* 상세 정보 팝업 */}
       {isDetailOpen && selectedLocation && (
-        <div className="detail-popup-overlay">
+        <div 
+          className="detail-popup-overlay"
+          onClick={(e) => {
+            if (e.target.className === 'detail-popup-overlay') {
+              setIsDetailOpen(false);
+            }
+          }}
+        >
           <div className="detail-popup">
             <div className="detail-popup-header">
               <h2>여행 상세 정보</h2>
-              <button 
+              <button
                 className="close-btn"
                 onClick={() => setIsDetailOpen(false)}
                 title="닫기"
