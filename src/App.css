@@ -115,43 +115,45 @@ body, .app-wrapper, .app-container {
 .travel-info {
   background: var(--main-bg);
   border-radius: 12px;
-  padding: 1.5rem 3rem 3rem 3rem;
+  padding: 2rem 1.5rem 2.5rem 1.5rem;
   color: var(--main-text-dark);
-  min-height: 30rem;
-  margin: 1rem 0;
-  flex: 1;
+  min-width: 320px;
+  max-width: 700px;
+  margin: 2rem auto 1.5rem auto;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  width: 100%;
 }
 
 .travel-info-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 3.6rem;
-  padding: 2.4rem 0;
+  margin-bottom: 1.5rem;
+  padding: 0.5rem 0;
   border-bottom: 1px solid rgba(139, 45, 37, 0.1);
-  height: 7.5rem;
+  height: auto;
 }
 
 .travel-info-header .section-title {
   margin: 0;
-  font-size: 7.8rem;
+  font-size: 2rem;
   color: var(--main-red);
   font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 3rem;
+  gap: 1rem;
   height: 100%;
   padding: 0;
-  margin-top: 0.9rem;
+  margin-top: 0;
 }
 
 .travel-info-buttons {
   display: flex;
-  gap: 4.8rem;
+  gap: 1.2rem;
   height: 100%;
   align-items: center;
   padding: 0;
-  margin-bottom: 2.4rem;
+  margin-bottom: 0;
 }
 
 .detail-btn,
@@ -160,7 +162,7 @@ body, .app-wrapper, .app-container {
   background: none;
   border: none;
   color: var(--main-red);
-  font-size: 7.8rem;
+  font-size: 2.2rem;
   cursor: pointer;
   padding: 0;
   border-radius: 50%;
@@ -168,8 +170,8 @@ body, .app-wrapper, .app-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 15rem;
-  width: 15rem;
+  height: 3.5rem;
+  width: 3.5rem;
 }
 
 .detail-btn:hover,
@@ -225,10 +227,10 @@ body, .app-wrapper, .app-container {
 }
 
 .route-info {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  justify-content: space-between;
   gap: 1rem;
-  margin-top: 1rem;
+  margin-top: 1.2rem;
 }
 
 .route-info-item {
@@ -239,44 +241,41 @@ body, .app-wrapper, .app-container {
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  animation: slideIn 0.5s ease-out;
-  animation-fill-mode: both;
 }
 
 .route-info-item i {
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   color: var(--main-red);
   margin-bottom: 0.3rem;
 }
 
 .route-info-item span {
   color: var(--main-text-dark);
-  font-size: 0.9rem;
+  font-size: 1.1rem;
   text-align: center;
   font-weight: 500;
 }
 
-.route-info-item:nth-child(1) { animation-delay: 0.1s; }
-.route-info-item:nth-child(2) { animation-delay: 0.2s; }
-.route-info-item:nth-child(3) { animation-delay: 0.3s; }
-
 .start-btn {
-  padding: 2.7rem;
+  padding: 2rem;
   background: var(--main-red);
   color: var(--main-text-light);
   border: none;
   border-radius: 12px;
-  font-size: 4rem;
+  font-size: 2rem;
   font-weight: 500;
   cursor: pointer;
   animation: fadeIn 0.5s ease-out;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 2.1rem;
-  min-height: 10.7rem;
+  gap: 1.2rem;
+  min-height: 4.5rem;
   margin-bottom: 2rem;
   width: 100%;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .start-btn:hover {
@@ -290,7 +289,7 @@ body, .app-wrapper, .app-container {
   color: var(--main-text-dark);
   border-radius: 16px;
   width: 95%;
-  max-width: 850px;
+  max-width: 1000px;
   max-height: 180vh;
   display: flex;
   flex-direction: column;
@@ -645,7 +644,8 @@ body, .app-wrapper, .app-container {
     font-size: 4rem;
   }
   .travel-info {
-    padding: 2.4rem;
+    max-width: 98vw;
+    padding: 1rem 0.5rem 1.5rem 0.5rem;
   }
   .travel-info-header {
     margin-bottom: 3rem;
@@ -663,15 +663,14 @@ body, .app-wrapper, .app-container {
     width: 12rem;
   }
   .start-btn {
-    padding: 2rem;
-    font-size: 3rem;
-    min-height: 8rem;
-    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+    min-height: 3rem;
+    padding: 1rem;
+    max-width: 98vw;
   }
   .settings-popup,
   .detail-popup {
-    width: 95%;
-    max-height: 95vh;
+    max-width: 98vw;
   }
   .settings-popup-header,
   .detail-popup-header {
