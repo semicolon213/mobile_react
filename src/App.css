@@ -106,6 +106,7 @@ body, .app-wrapper, .app-container {
   overflow: hidden;
   height: 0;
   position: relative;
+  margin-bottom: 1rem;
 }
 
 .travel-info, .start-btn {
@@ -117,6 +118,7 @@ body, .app-wrapper, .app-container {
   border-radius: 12px;
   padding: 0.5rem 1rem 1rem 1rem;
   color: var(--main-text-dark);
+  margin-bottom: 1rem;
 }
 
 .travel-info-header {
@@ -131,7 +133,7 @@ body, .app-wrapper, .app-container {
 
 .travel-info-header .section-title {
   margin: 0;
-  font-size: 3.25rem;
+  font-size: 3.9rem;
   color: var(--main-red);
   font-weight: 600;
   display: flex;
@@ -241,14 +243,14 @@ body, .app-wrapper, .app-container {
 }
 
 .route-info-item i {
-  font-size: 1.4rem;
+  font-size: 2.8rem;
   color: var(--main-red);
   margin-bottom: 0.3rem;
 }
 
 .route-info-item span {
   color: var(--main-text-dark);
-  font-size: 0.9rem;
+  font-size: 1.8rem;
   text-align: center;
   font-weight: 500;
 }
@@ -271,6 +273,7 @@ body, .app-wrapper, .app-container {
   align-items: center;
   justify-content: center;
   gap: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .start-btn:hover {
