@@ -568,13 +568,13 @@ function App() {
                 <div className="travel-info-header">
                   <h3 className="section-title">여행 정보</h3>
                   <div className="travel-info-buttons">
-                    <button 
-                      className="detail-btn"
-                      onClick={() => setIsDetailOpen(true)}
-                      title="상세 정보 보기"
-                    >
-                      <i className="fas fa-info-circle"></i>
-                    </button>
+                  <button 
+                    className="detail-btn"
+                    onClick={() => setIsDetailOpen(true)}
+                    title="상세 정보 보기"
+                  >
+                    <i className="fas fa-info-circle"></i>
+                  </button>
                     <button 
                       className="restaurant-btn"
                       onClick={openNearbyRestaurants}
@@ -701,7 +701,7 @@ function App() {
 
           {/* 시간 설정 */}
           <section className="time-section">
-            <h3 className="section-title">여행 시간</h3>
+                  <h3 className="section-title">여행 시간</h3>
             <div className="time-range-container">
               <div className="time-range-labels">
                 <span>20분</span>
@@ -719,8 +719,8 @@ function App() {
                 className="time-range-slider"
                 step="10"
               />
-            </div>
-          </section>
+                  </div>
+                </section>
               </div>
             </div>
           </div>
@@ -740,13 +740,13 @@ function App() {
           <div className="detail-popup">
             <div className="detail-popup-header">
               <h2>여행 상세 정보</h2>
-              <button
+          <button
                 className="close-btn"
                 onClick={() => setIsDetailOpen(false)}
                 title="닫기"
-              >
+          >
                 <i className="fas fa-times"></i>
-              </button>
+          </button>
             </div>
             <div className="detail-popup-content">
               <div className="detail-grid">
@@ -809,7 +809,7 @@ function App() {
               </div>
             </div>
           </div>
-        </div>
+      </div>
       )}
     </div>
   )
