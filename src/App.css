@@ -20,6 +20,9 @@ html, body {
   font-family: sans-serif;
   background-color: var(--main-bg);
   color: var(--main-text-light);
+  max-width: 100vw;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body, .app-wrapper, .app-container {
@@ -31,13 +34,18 @@ body, .app-wrapper, .app-container {
 .app-header {
   background: var(--main-red);
   color: var(--main-text-light);
-  padding: 0.8rem 2rem;
+  padding: 0.8rem 1rem;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   box-shadow: none;
   justify-content: center;
   height: 3.5rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
 }
 
 .header-inner {
@@ -77,18 +85,14 @@ body, .app-wrapper, .app-container {
   background: var(--main-bg);
   color: var(--main-text-dark);
   height: 100vh;
-  width: 50%;
-  margin: 0 auto;
+  width: 100vw;
   overflow: hidden;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
 }
 
 .app-container {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  max-width: 100%;
-  margin: 0 auto;
 }
 
 .app-main {
@@ -100,6 +104,8 @@ body, .app-wrapper, .app-container {
   background: var(--main-bg);
   height: calc(100vh - 64px);
   overflow: hidden;
+  margin-top: 3.5rem;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .map-container {
@@ -110,9 +116,6 @@ body, .app-wrapper, .app-container {
   overflow: hidden;
   height: 0;
   position: relative;
-  width: 100%;
-  max-width: 100%;
-  margin: 0 auto;
 }
 
 .travel-info, .start-btn {
@@ -638,19 +641,22 @@ body, .app-wrapper, .app-container {
 
 @media (max-width: 768px) {
   .app-header {
-    padding: 1rem;
+    padding: 0.8rem 1rem;
   }
   .header-logo {
     font-size: 1.5rem;
   }
   .app-main {
     padding: 0.5rem;
-    gap: 0.5rem;
+    height: calc(100vh - 64px - env(safe-area-inset-bottom));
   }
   .settings-popup,
   .detail-popup {
-    width: 95%;
-    max-height: 95vh;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    border-radius: 0;
+    margin: 0;
   }
   .settings-popup-header,
   .detail-popup-header {
@@ -663,15 +669,13 @@ body, .app-wrapper, .app-container {
   .settings-grid,
   .detail-grid {
     gap: 1rem;
-}
+  }
   .location-section,
-  .transport-section,
-  .time-section,
-  .detail-section {
+  .transport-section {
     padding: 1rem;
   }
   .travel-info {
-    padding: 0.8rem;
+    padding: 0.5rem;
   }
   .travel-info-section {
     padding: 1rem;
@@ -685,52 +689,38 @@ body, .app-wrapper, .app-container {
   .detail-info-item {
     font-size: 0.9rem;
     padding: 0.4rem 0;
-}
+  }
   .transport-btn {
-    padding: 1rem;
+    padding: 0.8rem;
   }
   .transport-btn i {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
   }
   .detail-popup-header {
     padding: 1rem;
   }
   .detail-popup-header h2 {
-    font-size: 1.3rem;
-}
+    font-size: 1.2rem;
+  }
   .settings-popup-header {
     padding: 1rem;
   }
   .settings-popup-header h2 {
-    font-size: 1.3rem;
-}
+    font-size: 1.2rem;
+  }
   .settings-popup-content {
-    padding: 1rem;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
   }
-  .settings-grid {
-    gap: 1rem;
+}
+
+/* iOS Safari에서의 안전 영역 대응 */
+@supports (padding: max(0px)) {
+  .app-main {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
   }
-  .location-section,
-  .transport-section,
-  .time-section {
-    padding: 1rem;
-  }
-  .route-info {
-    grid-template-columns: 1fr;
-    gap: 0.8rem;
-  }
-  .route-info-item {
-    flex-direction: row;
-    justify-content: flex-start;
-    padding: 0.8rem;
-  }
-  .route-info-item i {
-    margin-bottom: 0;
-    margin-right: 0.8rem;
-  }
-  .app-wrapper {
-    width: 100%;
-    margin: 0;
+  
+  .settings-popup-content {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
 }
 
