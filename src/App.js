@@ -436,21 +436,21 @@ function App() {
       position: center,
       map: mapInstanceRef.current,
       icon: process.env.PUBLIC_URL + '/images/me.png',
-      iconSize: new window.Tmapv2.Size(40, 40),
+      iconSize: new window.Tmapv2.Size(120, 120),
       className: 'marker-animation'
     });
     window._randomTravelMarkerB = new window.Tmapv2.Marker({
       position: new window.Tmapv2.LatLng(selectedLoc.lat, selectedLoc.lng),
       map: mapInstanceRef.current,
       icon: process.env.PUBLIC_URL + '/images/trip.png',
-      iconSize: new window.Tmapv2.Size(40, 40),
+      iconSize: new window.Tmapv2.Size(120, 120),
       label: selectedLoc.name,
       labelStyle: {
         backgroundColor: '#FFFFFF',
         color: '#000000',
-        fontSize: '14px',
-        padding: '4px 8px',
-        borderRadius: '4px'
+        fontSize: '42px',
+        padding: '12px 24px',
+        borderRadius: '12px'
       },
       className: 'marker-animation'
     });
