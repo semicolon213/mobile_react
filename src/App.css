@@ -118,6 +118,8 @@ body, .app-wrapper, .app-container {
   padding: 1.5rem 3rem 3rem 3rem;
   color: var(--main-text-dark);
   min-height: 30rem;
+  margin: 1rem 0;
+  flex: 1;
 }
 
 .travel-info-header {
@@ -132,12 +134,12 @@ body, .app-wrapper, .app-container {
 
 .travel-info-header .section-title {
   margin: 0;
-  font-size: 3.9rem;
+  font-size: 7.8rem;
   color: var(--main-red);
   font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 3rem;
   height: 100%;
   padding: 0;
   margin-top: 0.9rem;
@@ -145,7 +147,7 @@ body, .app-wrapper, .app-container {
 
 .travel-info-buttons {
   display: flex;
-  gap: 2.4rem;
+  gap: 4.8rem;
   height: 100%;
   align-items: center;
   padding: 0;
@@ -158,7 +160,7 @@ body, .app-wrapper, .app-container {
   background: none;
   border: none;
   color: var(--main-red);
-  font-size: 3.9rem;
+  font-size: 7.8rem;
   cursor: pointer;
   padding: 0;
   border-radius: 50%;
@@ -166,8 +168,8 @@ body, .app-wrapper, .app-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 7.5rem;
-  width: 7.5rem;
+  height: 15rem;
+  width: 15rem;
 }
 
 .detail-btn:hover,
@@ -193,17 +195,17 @@ body, .app-wrapper, .app-container {
 }
 
 .section-title {
-  font-size: 1.1rem;
+  font-size: 2.2rem;
   font-weight: 600;
   color: var(--main-red);
-  margin-bottom: 1.2rem;
+  margin-bottom: 2.4rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .section-title i {
-  font-size: 1.2rem;
+  font-size: 2.4rem;
 }
 
 .travel-info-section {
@@ -264,7 +266,7 @@ body, .app-wrapper, .app-container {
   color: var(--main-text-light);
   border: none;
   border-radius: 12px;
-  font-size: 2.7rem;
+  font-size: 4rem;
   font-weight: 500;
   cursor: pointer;
   animation: fadeIn 0.5s ease-out;
@@ -274,6 +276,7 @@ body, .app-wrapper, .app-container {
   gap: 2.1rem;
   min-height: 10.7rem;
   margin-bottom: 2rem;
+  width: 100%;
 }
 
 .start-btn:hover {
@@ -286,15 +289,15 @@ body, .app-wrapper, .app-container {
   background: var(--main-bg);
   color: var(--main-text-dark);
   border-radius: 16px;
-  width: 90%;
-  max-width: 500px;
-  max-height: 90vh;
+  width: 95%;
+  max-width: 850px;
+  max-height: 180vh;
   display: flex;
   flex-direction: column;
 }
 
 .settings-popup-header {
-  padding: 1.2rem 1.5rem;
+  padding: 2.4rem 3rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -303,7 +306,7 @@ body, .app-wrapper, .app-container {
 
 .settings-popup-header h2 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 3rem;
   color: var(--main-red);
   font-weight: 600;
   text-align: left;
@@ -349,7 +352,7 @@ body, .app-wrapper, .app-container {
 }
 
 .settings-popup-content {
-  padding: 1.5rem;
+  padding: 3rem;
   flex: 1;
   overflow-y: auto;
 }
@@ -389,10 +392,10 @@ body, .app-wrapper, .app-container {
 
 .location-input {
   flex: 1;
-  padding: 0.8rem 1rem;
+  padding: 1.6rem 2rem;
   border: 1px solid #ccc;
   border-radius: 8px;
-  font-size: 0.95rem;
+  font-size: 1.9rem;
   background: var(--main-bg);
   color: var(--main-text-dark);
 }
@@ -403,8 +406,8 @@ body, .app-wrapper, .app-container {
 }
 
 .location-btn {
-  width: 42px;
-  height: 42px;
+  width: 84px;
+  height: 84px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -413,6 +416,7 @@ body, .app-wrapper, .app-container {
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  font-size: 2.4rem;
 }
 
 .location-btn:hover {
@@ -430,8 +434,8 @@ body, .app-wrapper, .app-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.8rem;
-  padding: 1.2rem;
+  gap: 1.6rem;
+  padding: 2.4rem;
   border: 2px solid var(--main-red);
   border-radius: 12px;
   background: var(--main-bg);
@@ -455,12 +459,12 @@ body, .app-wrapper, .app-container {
 }
 
 .transport-btn i {
-  font-size: 1.8rem;
+  font-size: 3.6rem;
   color: var(--main-red);
 }
 
 .transport-btn span {
-  font-size: 0.95rem;
+  font-size: 1.9rem;
   color: var(--main-text-dark);
   font-weight: 500;
 }
@@ -474,9 +478,9 @@ body, .app-wrapper, .app-container {
 .time-range-labels {
   display: flex;
   justify-content: space-between;
-  font-size: 0.85rem;
+  font-size: 1.7rem;
   color: var(--main-red);
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .time-range-slider {
@@ -504,6 +508,7 @@ body, .app-wrapper, .app-container {
 .current-time {
   color: var(--main-red);
   font-weight: 500;
+  font-size: 2rem;
 }
 
 .detail-popup-overlay,
@@ -648,18 +653,18 @@ body, .app-wrapper, .app-container {
     height: 6rem;
   }
   .travel-info-header .section-title {
-    font-size: 3rem;
+    font-size: 6rem;
   }
   .detail-btn,
   .nav-btn,
   .restaurant-btn {
-    font-size: 3rem;
-    height: 6rem;
-    width: 6rem;
+    font-size: 6rem;
+    height: 12rem;
+    width: 12rem;
   }
   .start-btn {
     padding: 2rem;
-    font-size: 2rem;
+    font-size: 3rem;
     min-height: 8rem;
     margin-bottom: 1.5rem;
   }
@@ -706,7 +711,7 @@ body, .app-wrapper, .app-container {
     padding: 1rem;
   }
   .transport-btn i {
-    font-size: 1.5rem;
+    font-size: 3rem;
   }
   .detail-popup-header {
     padding: 1rem;
@@ -718,7 +723,7 @@ body, .app-wrapper, .app-container {
     padding: 1rem;
   }
   .settings-popup-header h2 {
-    font-size: 1.3rem;
+    font-size: 2.4rem;
 }
   .settings-popup-content {
     padding: 1rem;
@@ -743,6 +748,18 @@ body, .app-wrapper, .app-container {
   .route-info-item i {
     margin-bottom: 0;
     margin-right: 0.8rem;
+  }
+  .section-title {
+    font-size: 1.8rem;
+  }
+  .location-input {
+    font-size: 1.6rem;
+  }
+  .time-range-labels {
+    font-size: 1.4rem;
+  }
+  .current-time {
+    font-size: 1.6rem;
   }
 }
 
