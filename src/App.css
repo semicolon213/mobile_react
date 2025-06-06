@@ -631,207 +631,252 @@ body, .app-wrapper, .app-container {
 
 @media (max-width: 768px) {
   .app-header {
-    padding: 0.8rem 1rem;
-    height: 4rem;
+    padding: 1.5rem 2rem;
+    height: 8rem;
   }
 
   .header-logo {
-    font-size: 2rem;
+    font-size: 4rem;
+  }
+
+  .settings-btn {
+    font-size: 2.5rem;
+    right: 2rem;
+    top: 2.5rem;
   }
 
   .app-main {
-    padding: 0.8rem;
-    gap: 0.8rem;
-    height: calc(100vh - 4rem);
+    padding: 1.5rem;
+    gap: 1.5rem;
+    height: calc(100vh - 8rem);
   }
 
   .travel-info {
-    padding: 1rem;
+    padding: 2rem;
   }
 
   .travel-info-header {
-    margin-bottom: 1.5rem;
-    height: 3rem;
+    margin-bottom: 3rem;
+    height: 6rem;
+    padding: 1.5rem 0;
   }
 
   .travel-info-header .section-title {
-    font-size: 1.6rem;
+    font-size: 3.2rem;
+    gap: 1rem;
   }
 
   .travel-info-buttons {
-    gap: 1rem;
-    height: 3rem;
+    gap: 2rem;
+    height: 6rem;
+    margin-bottom: 1.5rem;
   }
 
   .detail-btn,
   .nav-btn,
   .restaurant-btn {
-    font-size: 1.6rem;
-    height: 3rem;
-    width: 3rem;
+    font-size: 3.2rem;
+    height: 6rem;
+    width: 6rem;
   }
 
   .section-title {
-    font-size: 1.4rem;
-    margin-bottom: 1.5rem;
+    font-size: 2.8rem;
+    margin-bottom: 3rem;
+    gap: 1rem;
   }
 
   .section-title i {
-    font-size: 1.5rem;
+    font-size: 3rem;
   }
 
   .travel-info-section {
-    padding: 1.8rem;
-    margin-top: 1.2rem;
+    padding: 3.6rem;
+    margin-top: 2.4rem;
   }
 
   .travel-info-section .section-title {
-    font-size: 1.6rem;
-    margin-bottom: 1.2rem;
+    font-size: 3.2rem;
+    margin-bottom: 2.4rem;
   }
 
   .route-info {
-    gap: 1.2rem;
-    margin-top: 1.2rem;
+    gap: 2.4rem;
+    margin-top: 2.4rem;
   }
 
   .route-info-item {
-    padding: 1.2rem;
-    gap: 0.8rem;
+    padding: 2.4rem;
+    gap: 1.6rem;
   }
 
   .route-info-item i {
-    font-size: 1.8rem;
-    margin-bottom: 0.5rem;
+    font-size: 3.6rem;
+    margin-bottom: 1rem;
   }
 
   .route-info-item span {
-    font-size: 1.2rem;
+    font-size: 2.4rem;
   }
 
   .start-btn {
-    font-size: 1.6rem;
-    padding: 1.2rem;
-    margin-top: 1.2rem;
-    height: 4rem;
+    font-size: 3.2rem;
+    padding: 2.4rem;
+    margin-top: 2.4rem;
+    height: 8rem;
+    gap: 1.6rem;
   }
 
   .settings-popup,
   .detail-popup {
-    width: 90%;
-    max-width: 500px;
+    width: 95%;
+    max-width: 800px;
   }
 
   .settings-popup-header,
   .detail-popup-header {
-    padding: 1.2rem;
+    padding: 2.4rem;
   }
 
   .settings-popup-header h2,
   .detail-popup-header h2 {
-    font-size: 1.8rem;
+    font-size: 3.6rem;
   }
 
   .settings-popup-content,
   .detail-popup-content {
-    padding: 1.5rem;
+    padding: 3rem;
   }
 
   .settings-grid {
-    gap: 1.5rem;
+    gap: 3rem;
   }
 
   .location-section,
   .transport-section {
-    padding: 1.5rem;
+    padding: 3rem;
   }
 
   .location-input {
-    font-size: 1.2rem;
-    padding: 1rem;
-    height: 3.5rem;
+    font-size: 2.4rem;
+    padding: 2rem;
+    height: 7rem;
   }
 
   .location-btn {
-    font-size: 1.2rem;
-    padding: 1rem 1.5rem;
-    height: 3.5rem;
+    font-size: 2.4rem;
+    padding: 2rem 3rem;
+    height: 7rem;
+    width: 7rem;
   }
 
   .transport-grid {
-    gap: 1rem;
+    gap: 2rem;
   }
 
   .transport-btn {
-    padding: 1.2rem;
-    height: 4rem;
+    padding: 2.4rem;
+    height: 8rem;
+    gap: 1.6rem;
   }
 
   .transport-btn i {
-    font-size: 1.8rem;
+    font-size: 3.6rem;
   }
 
   .transport-btn span {
-    font-size: 1.2rem;
+    font-size: 2.4rem;
   }
 
   .time-range-container {
-    padding: 1.5rem;
+    padding: 3rem;
   }
 
   .time-range-labels {
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
+    font-size: 2.4rem;
+    margin-bottom: 2rem;
   }
 
   .time-range-slider {
-    height: 0.8rem;
+    height: 1.6rem;
+  }
+
+  .time-range-slider::-webkit-slider-thumb {
+    width: 40px;
+    height: 40px;
   }
 
   .current-time {
-    font-size: 1.4rem;
+    font-size: 2.8rem;
   }
 
   .detail-grid {
-    gap: 1.5rem;
+    gap: 3rem;
   }
 
   .detail-section {
-    padding: 1.5rem;
+    padding: 3rem;
   }
 
   .detail-title {
-    font-size: 1.6rem;
-    margin-bottom: 1.2rem;
-  }
-
-  .detail-title i {
-    font-size: 1.8rem;
-  }
-
-  .detail-info {
+    font-size: 3.2rem;
+    margin-bottom: 2.4rem;
     gap: 1rem;
   }
 
+  .detail-title i {
+    font-size: 3.6rem;
+  }
+
+  .detail-info {
+    gap: 2rem;
+  }
+
   .detail-info-item {
-    font-size: 1.2rem;
-    padding: 1rem;
+    font-size: 2.4rem;
+    padding: 2rem;
+    gap: 2rem;
   }
 
   .detail-info-item i {
-    font-size: 1.6rem;
+    font-size: 3.2rem;
+    width: 3rem;
   }
 
   .no-route-message {
-    padding: 2rem;
+    padding: 4rem;
+    gap: 2rem;
   }
 
   .no-route-message i {
-    font-size: 3rem;
+    font-size: 6rem;
   }
 
   .no-route-message p {
-    font-size: 1.4rem;
+    font-size: 2.8rem;
+  }
+
+  .close-btn {
+    width: 64px;
+    height: 64px;
+    font-size: 2.4rem;
+  }
+
+  .save-btn {
+    padding: 1.6rem 4rem;
+    font-size: 2rem;
+    border-radius: 16px;
+  }
+
+  .current-location-btn {
+    width: 5rem;
+    height: 5rem;
+    bottom: 2rem;
+    right: 2rem;
+  }
+
+  .current-location-btn i {
+    font-size: 2.4rem;
   }
 }
 
