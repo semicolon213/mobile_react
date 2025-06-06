@@ -26,11 +26,14 @@ export const theme = {
     md: '16px',
     lg: '24px',
     xl: '32px',
+    xxl: '48px',
   },
   borderRadius: {
+    xs: '2px',
     sm: '4px',
     md: '8px',
     lg: '12px',
+    xl: '16px',
   },
   shadows: {
     sm: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
@@ -40,18 +43,24 @@ export const theme = {
   typography: {
     fontFamily: "'Noto Sans KR', sans-serif",
     fontSize: {
-      xs: '12px',
-      sm: '14px',
-      md: '16px',
-      lg: '18px',
-      xl: '20px',
-      xxl: '24px',
+      xs: '0.75rem',    // 12px
+      sm: '0.875rem',   // 14px
+      md: '1rem',       // 16px
+      lg: '1.125rem',   // 18px
+      xl: '1.25rem',    // 20px
+      xxl: '1.5rem',    // 24px
+      xxxl: '2rem',     // 32px
     },
     fontWeight: {
       light: 300,
       regular: 400,
       medium: 500,
       bold: 700,
+    },
+    lineHeight: {
+      tight: 1.2,
+      normal: 1.5,
+      loose: 1.8,
     },
   },
   breakpoints: {
