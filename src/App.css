@@ -31,13 +31,13 @@ body, .app-wrapper, .app-container {
 .app-header {
   background: var(--main-red);
   color: var(--main-text-light);
-  padding: 1.6rem 2rem;
+  padding: 3.2rem 2rem;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   box-shadow: none;
   justify-content: center;
-  height: 7rem;
+  height: 14rem;
 }
 
 .header-inner {
@@ -48,7 +48,7 @@ body, .app-wrapper, .app-container {
 }
 
 .header-logo {
-  font-size: 3.6rem;
+  font-size: 7.2rem;
   font-weight: 700;
   color: var(--main-text-light);
   font-family: 'Pacifico', cursive;
@@ -60,11 +60,11 @@ body, .app-wrapper, .app-container {
 .settings-btn {
   position: absolute;
   right: 1rem;
-  top: 2.4rem;
+  top: 4.8rem;
   background: none;
   border: none;
   color: var(--main-text-light);
-  font-size: 2rem;
+  font-size: 4rem;
   cursor: pointer;
 }
 
@@ -115,40 +115,41 @@ body, .app-wrapper, .app-container {
 .travel-info {
   background: var(--main-bg);
   border-radius: 12px;
-  padding: 0.5rem 1rem 1rem 1rem;
+  padding: 1.5rem 3rem 3rem 3rem;
   color: var(--main-text-dark);
+  min-height: 30rem;
 }
 
 .travel-info-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.2rem;
-  padding: 0.8rem 0;
+  margin-bottom: 3.6rem;
+  padding: 2.4rem 0;
   border-bottom: 1px solid rgba(139, 45, 37, 0.1);
-  height: 2.5rem;
+  height: 7.5rem;
 }
 
 .travel-info-header .section-title {
   margin: 0;
-  font-size: 1.3rem;
+  font-size: 3.9rem;
   color: var(--main-red);
   font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1.5rem;
   height: 100%;
   padding: 0;
-  margin-top: 0.3rem;
+  margin-top: 0.9rem;
 }
 
 .travel-info-buttons {
   display: flex;
-  gap: 0.8rem;
+  gap: 2.4rem;
   height: 100%;
   align-items: center;
   padding: 0;
-  margin-bottom: 0.8rem;
+  margin-bottom: 2.4rem;
 }
 
 .detail-btn,
@@ -157,7 +158,7 @@ body, .app-wrapper, .app-container {
   background: none;
   border: none;
   color: var(--main-red);
-  font-size: 1.3rem;
+  font-size: 3.9rem;
   cursor: pointer;
   padding: 0;
   border-radius: 50%;
@@ -165,8 +166,8 @@ body, .app-wrapper, .app-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 2.5rem;
-  width: 2.5rem;
+  height: 7.5rem;
+  width: 7.5rem;
 }
 
 .detail-btn:hover,
@@ -258,19 +259,20 @@ body, .app-wrapper, .app-container {
 .route-info-item:nth-child(3) { animation-delay: 0.3s; }
 
 .start-btn {
-  padding: 1rem;
+  padding: 4rem;
   background: var(--main-red);
   color: var(--main-text-light);
   border: none;
   border-radius: 12px;
-  font-size: 1rem;
+  font-size: 4rem;
   font-weight: 500;
   cursor: pointer;
   animation: fadeIn 0.5s ease-out;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.8rem;
+  gap: 3.2rem;
+  min-height: 16rem;
 }
 
 .start-btn:hover {
@@ -631,14 +633,33 @@ body, .app-wrapper, .app-container {
 
 @media (max-width: 768px) {
   .app-header {
-    padding: 2rem;
+    padding: 4rem;
   }
   .header-logo {
+    font-size: 6rem;
+  }
+  .travel-info {
+    padding: 2.4rem;
+  }
+  .travel-info-header {
+    margin-bottom: 3rem;
+    padding: 2rem 0;
+    height: 6rem;
+  }
+  .travel-info-header .section-title {
     font-size: 3rem;
   }
-  .app-main {
-    padding: 0.5rem;
-    gap: 0.5rem;
+  .detail-btn,
+  .nav-btn,
+  .restaurant-btn {
+    font-size: 3rem;
+    height: 6rem;
+    width: 6rem;
+  }
+  .start-btn {
+    padding: 3rem;
+    font-size: 3rem;
+    min-height: 12rem;
   }
   .settings-popup,
   .detail-popup {
