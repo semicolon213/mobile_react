@@ -273,7 +273,7 @@ body, .app-wrapper, .app-container {
   align-items: center;
   justify-content: center;
   gap: 2rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2.5rem;
 }
 
 .start-btn:hover {
