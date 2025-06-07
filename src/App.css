@@ -288,11 +288,11 @@ body, .app-wrapper, .app-container {
   color: var(--main-text-dark);
   border-radius: 16px;
   width: 90%;
-  max-width: 900px;
+  max-width: 500px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  transform: scale(1.7, 1.33);
+  transform: scale(1.2, 1.33);
   transform-origin: center center;
 }
 
@@ -536,11 +536,11 @@ body, .app-wrapper, .app-container {
   color: var(--main-text-dark);
   border-radius: 16px;
   width: 90%;
-  max-width: 900px;
+  max-width: 500px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  transform: scale(1.8, 1.5);
+  transform: scale(1.2, 1.5);
   transform-origin: center center;
 }
 
