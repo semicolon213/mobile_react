@@ -526,10 +526,9 @@ function App() {
       alert('먼저 랜덤 여행을 시작해주세요.');
       return;
     }
-    
+
     const { lat, lng } = selectedLocation;
-    const url = `https://apis.openapi.sk.com/tmap/pois/search/around?version=1&format=json&callback=result&appKey=${TMAP_API_KEY}&categories=음식점&centerLon=${lng}&centerLat=${lat}&radius=1000&count=20`;
-    
+    const url = `https://apis.openapi.sk.com/tmap/pois?version=1&format=json&callback=result&searchKeyword=음식점&searchType=all&searchtypCd=A&reqCoordType=WGS84GEO&resCoordType=WGS84GEO&radius=1&count=20&centerLon=${lng}&centerLat=${lat}&appKey=${TMAP_API_KEY}`;
     window.open(url, '_blank');
   };
 
