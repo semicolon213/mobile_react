@@ -19,7 +19,6 @@ function App() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [hasPreviousTravel, setHasPreviousTravel] = useState(false);  // 이전 여행지 생성 여부 추적
-  const [travelInfo, setTravelInfo] = useState(null);  // 여행 정보 상태 추가
 
   // 지도, 마커, 원, 폴리곤 등 지도 객체를 저장할 ref 선언
   const mapRef = useRef(null);
@@ -402,114 +401,82 @@ function App() {
     }
   }, [routeLine]);
 
-  const searchNearbyPlaces = async (centerLon, centerLat, category) => {
-    const options = {
-      method: 'GET',
-      headers: {
-        'accept': 'application/json',
-        'appKey': 'e8wHh2tya84M88aReEpXCa5XTQf3xgo01aZG39k5'
-      }
-    };
-
-    try {
-      const response = await fetch(
-        `https://apis.openapi.sk.com/tmap/pois/search/around?version=1&centerLon=${centerLon}&centerLat=${centerLat}&categories=${encodeURIComponent(category)}&page=1&count=20&radius=1&reqCoordType=WGS84GEO&resCoordType=WGS84GEO&multiPoint=N`,
-        options
-      );
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('여행지 검색 중 오류 발생:', error);
-      return null;
-    }
-  };
-
-  // 기존 handleRandomTravel 함수를 찾아서 수정
-  const handleRandomTravel = async () => {
-    if (!markerRef.current || !mapInstanceRef.current) {
-      alert('현재 위치를 먼저 설정해주세요.');
+  // handleRandomTravel에서 분기 호출
+  const handleRandomTravel = useCallback(() => {
+    if (
+      !markerRef.current ||
+      !mapInstanceRef.current ||
+      !outerCircleRef.current ||
+      !innerCircleRef.current
+    ) {
+      alert('지도를 초기화하거나 이동수단/시간을 선택해주세요.');
       return;
     }
-
-    try {
-      const position = markerRef.current.getPosition();
-      const latitude = position.lat();
-      const longitude = position.lng();
-
-      // 여행지 카테고리 목록
-      const categories = [
-        '관광지',
-        '문화시설',
-        '축제공연행사',
-        '레포츠',
-        '숙박',
-        '쇼핑',
-        '음식점'
-      ];
-
-      // 랜덤하게 카테고리 선택
-      const randomCategory = categories[Math.floor(Math.random() * categories.length)];
-      
-      // 주변 여행지 검색
-      const searchResult = await searchNearbyPlaces(
-        longitude,
-        latitude,
-        randomCategory
-      );
-
-      if (searchResult && searchResult.searchPoiInfo && searchResult.searchPoiInfo.pois) {
-        const pois = searchResult.searchPoiInfo.pois.poi;
-        if (pois && pois.length > 0) {
-          // 랜덤하게 여행지 선택
-          const randomPoi = pois[Math.floor(Math.random() * pois.length)];
-          
-          // 선택된 여행지 정보 설정
-          setTravelInfo({
-            destination: randomPoi.name,
-            distance: '1km 이내',
-            time: '도보 10분',
-            category: randomCategory
-          });
-
-          // 지도에 마커 표시
-          if (window._randomTravelMarkerA) {
-            window._randomTravelMarkerA.setMap(null);
-          }
-
-          window._randomTravelMarkerA = new window.Tmapv2.Marker({
-            position: new window.Tmapv2.LatLng(randomPoi.frontLat, randomPoi.frontLon),
-            icon: 'https://tmapapi.sktelecom.com/upload/tmap/marker/pin_r_m_s.png',
-            iconSize: new window.Tmapv2.Size(120, 120),
-            map: mapInstanceRef.current
-          });
-
-          // 경로 표시
-          if (mapInstanceRef.current) {
-            const startPoint = new window.Tmapv2.LatLng(latitude, longitude);
-            const endPoint = new window.Tmapv2.LatLng(randomPoi.frontLat, randomPoi.frontLon);
-
-            const routeLayer = new window.Tmapv2.RouteLayer({
-              map: mapInstanceRef.current,
-              startPoint: startPoint,
-              endPoint: endPoint,
-              lineColor: '#FF0000',
-              lineWidth: 6,
-              lineStyle: 'solid'
-            });
-          }
-
-          setHasPreviousTravel(true);
-        } else {
-          alert('주변에 여행지를 찾을 수 없습니다. 다른 위치에서 다시 시도해주세요.');
-        }
-      } else {
-        alert('여행지 검색에 실패했습니다. 다시 시도해주세요.');
-      }
-    } catch (error) {
-      console.error('랜덤 여행 처리 중 오류 발생:', error);
-      alert('여행지 검색 중 오류가 발생했습니다. 다시 시도해주세요.');
+    const center = outerCircleRef.current.getCenter();
+    const outerRadius = outerCircleRef.current.getRadius();
+    const innerRadius = innerCircleRef.current.getRadius();
+    const latConv = 111320;
+    const lngConv = 111320 * Math.cos((center.lat() * Math.PI) / 180);
+    const filterInDonut = locations.filter(({ lat, lng }) => {
+      const dLat = (lat - center.lat()) * latConv;
+      const dLng = (lng - center.lng()) * lngConv;
+      const dist = Math.sqrt(dLat * dLat + dLng * dLng);
+      return dist >= innerRadius && dist <= outerRadius;
+    });
+    if (filterInDonut.length === 0) {
+      alert('해당 조건 내 여행지가 없습니다.');
+      return;
     }
-  };
+    const randomIdx = Math.floor(Math.random() * filterInDonut.length);
+    const selectedLoc = filterInDonut[randomIdx];
+    setSelectedLocation(selectedLoc);
+    if (window._randomTravelMarkerA) window._randomTravelMarkerA.setMap(null);
+    if (window._randomTravelMarkerB) window._randomTravelMarkerB.setMap(null);
+    window._randomTravelMarkerA = new window.Tmapv2.Marker({
+      position: center,
+      map: mapInstanceRef.current,
+      icon: process.env.PUBLIC_URL + '/images/me.png',
+      iconSize: new window.Tmapv2.Size(120, 120),
+      className: 'marker-animation'
+    });
+    window._randomTravelMarkerB = new window.Tmapv2.Marker({
+      position: new window.Tmapv2.LatLng(selectedLoc.lat, selectedLoc.lng),
+      map: mapInstanceRef.current,
+      icon: process.env.PUBLIC_URL + '/images/trip.png',
+      iconSize: new window.Tmapv2.Size(120, 120),
+      label: selectedLoc.name,
+      labelStyle: {
+        backgroundColor: '#FFFFFF',
+        color: '#000000',
+        fontSize: '42px',
+        padding: '12px 24px',
+        borderRadius: '12px'
+      },
+      className: 'marker-animation'
+    });
+    if (window._randomTravelInfoWindowB) window._randomTravelInfoWindowB.setMap(null);
+    // 이동수단에 따라 분기
+    if (selectedTransports.includes('car')) {
+      createCarRoute(
+        { lat: center.lat(), lng: center.lng() },
+        { lat: selectedLoc.lat, lng: selectedLoc.lng }
+      );
+    } else if (selectedTransports.includes('public')) {
+      createTransitRoute(
+        { lat: center.lat(), lng: center.lng() },
+        { lat: selectedLoc.lat, lng: selectedLoc.lng }
+      );
+    }
+    // 지도 이동 애니메이션
+    const bounds = new window.Tmapv2.LatLngBounds();
+    bounds.extend(center);
+    bounds.extend(new window.Tmapv2.LatLng(selectedLoc.lat, selectedLoc.lng));
+    mapInstanceRef.current.fitBounds(bounds, {
+      padding: 50,
+      duration: 1000
+    });
+    setHasPreviousTravel(true);
+  }, [createCarRoute, createTransitRoute, locations, selectedTransports]);
 
   // 설정 저장 함수
   const saveSettings = useCallback(() => {
@@ -553,16 +520,80 @@ function App() {
     window.open(url, '_blank');
   }, [selectedLocation]);
 
-  // 음식점 찾기 함수 추가
-  const openNearbyRestaurants = useCallback(() => {
+  // 음식점 찾기 함수를 편의점 검색 함수로 변경
+  const openNearbyConvenienceStores = useCallback(async () => {
     if (!selectedLocation) {
       alert('먼저 여행지를 선택해주세요.');
       return;
     }
 
-    const url = `https://apis.openapi.sk.com/tmap/app/nearby?appKey=${TMAP_API_KEY}&host=nearby&lat=${selectedLocation.lat}&lon=${selectedLocation.lng}&category=음식점`;
-    window.open(url, '_blank');
+    try {
+      const data = await searchNearbyPharmacies(selectedLocation.lng, selectedLocation.lat);
+      if (data && data.searchPoiInfo && data.searchPoiInfo.pois && data.searchPoiInfo.pois.poi) {
+        const pois = Array.isArray(data.searchPoiInfo.pois.poi) 
+          ? data.searchPoiInfo.pois.poi 
+          : [data.searchPoiInfo.pois.poi];
+        
+        // 검색된 편의점 정보를 지도에 표시
+        pois.forEach(poi => {
+          new window.Tmapv2.Marker({
+            position: new window.Tmapv2.LatLng(poi.frontLat, poi.frontLon),
+            map: mapInstanceRef.current,
+            icon: process.env.PUBLIC_URL + '/images/store.png',
+            iconSize: new window.Tmapv2.Size(80, 80),
+            label: poi.name,
+            labelStyle: {
+              backgroundColor: '#FFFFFF',
+              color: '#000000',
+              fontSize: '24px',
+              padding: '8px 16px',
+              borderRadius: '8px'
+            }
+          });
+        });
+
+        // 지도 이동 애니메이션
+        const bounds = new window.Tmapv2.LatLngBounds();
+        bounds.extend(new window.Tmapv2.LatLng(selectedLocation.lat, selectedLocation.lng));
+        pois.forEach(poi => {
+          bounds.extend(new window.Tmapv2.LatLng(poi.frontLat, poi.frontLon));
+        });
+        mapInstanceRef.current.fitBounds(bounds, {
+          padding: 50,
+          duration: 1000
+        });
+      } else {
+        alert('주변에 편의점이 없습니다.');
+      }
+    } catch (error) {
+      console.error('편의점 검색 중 오류 발생:', error);
+      alert('편의점 검색에 실패했습니다.');
+    }
   }, [selectedLocation]);
+
+  const searchNearbyPharmacies = async (centerLon, centerLat) => {
+    try {
+      const options = {
+        method: 'GET',
+        headers: {
+          accept: 'application/json',
+          appKey: 'e8wHh2tya84M88aReEpXCa5XTQf3xgo01aZG39k5'
+        }
+      };
+
+      const response = await fetch(
+        `https://apis.openapi.sk.com/tmap/pois/search/around?version=1&centerLon=${centerLon}&centerLat=${centerLat}&categories=편의점&page=1&count=20&radius=1&reqCoordType=WGS84GEO&resCoordType=WGS84GEO&multiPoint=N`,
+        options
+      );
+      
+      const data = await response.json();
+      console.log('주변 편의점 검색 결과:', data);
+      return data;
+    } catch (error) {
+      console.error('편의점 검색 중 오류 발생:', error);
+      return null;
+    }
+  };
 
   // 렌더링 부분
   return (
@@ -596,24 +627,24 @@ function App() {
 
           {/* 여행 정보 표시 */}
           <div className="travel-info">
-            {travelInfo ? (
+            {routeInfo ? (
               <div className="travel-info-section">
                 <div className="travel-info-header">
                   <h3 className="section-title">여행 정보</h3>
                   <div className="travel-info-buttons">
-                    <button 
-                      className="detail-btn"
-                      onClick={() => setIsDetailOpen(true)}
-                      title="상세 정보 보기"
-                    >
-                      <i className="fas fa-info-circle"></i>
-                    </button>
+                  <button 
+                    className="detail-btn"
+                    onClick={() => setIsDetailOpen(true)}
+                    title="상세 정보 보기"
+                  >
+                    <i className="fas fa-info-circle"></i>
+                  </button>
                     <button 
                       className="restaurant-btn"
-                      onClick={openNearbyRestaurants}
-                      title="주변 음식점 찾기"
+                      onClick={openNearbyConvenienceStores}
+                      title="주변 편의점 찾기"
                     >
-                      <i className="fas fa-utensils"></i>
+                      <i className="fas fa-store"></i>
                     </button>
                     <button 
                       className="nav-btn"
@@ -625,21 +656,24 @@ function App() {
                   </div>
                 </div>
                 <div className="route-info">
-                  <div className="route-info-item">
-                    <i className="fas fa-map-marker-alt"></i>
-                    <span>{travelInfo.destination}</span>
-                  </div>
+                  {routeInfo.fare > 0 ? (
+                    <div className="route-info-item">
+                      <i className="fas fa-won-sign"></i>
+                      <span>{routeInfo.fare}원</span>
+                    </div>
+                  ) : (
+                    <div className="route-info-item">
+                      <i className="fas fa-map-marker-alt"></i>
+                      <span>{selectedLocation.name}</span>
+                    </div>
+                  )}
                   <div className="route-info-item">
                     <i className="fas fa-road"></i>
-                    <span>{travelInfo.distance}</span>
+                    <span>{routeInfo.distance}km</span>
                   </div>
                   <div className="route-info-item">
                     <i className="fas fa-clock"></i>
-                    <span>{travelInfo.time}</span>
-                  </div>
-                  <div className="route-info-item">
-                    <i className="fas fa-tag"></i>
-                    <span>{travelInfo.category}</span>
+                    <span>{routeInfo.time}분</span>
                   </div>
                 </div>
               </div>
