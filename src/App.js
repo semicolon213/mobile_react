@@ -521,16 +521,16 @@ function App() {
   }, [selectedLocation]);
 
   // 음식점 찾기 함수 추가
-  const openNearbyRestaurants = () => {
+  const openNearbyRestaurants = useCallback(() => {
     if (!selectedLocation) {
       alert('먼저 랜덤 여행을 시작해주세요.');
       return;
     }
 
     const { lat, lng } = selectedLocation;
-    const url = `https://apis.openapi.sk.com/tmap/pois?version=1&format=json&callback=result&searchKeyword=음식점&searchType=all&searchtypCd=A&reqCoordType=WGS84GEO&resCoordType=WGS84GEO&radius=1&count=20&centerLon=${lng}&centerLat=${lat}&appKey=${TMAP_API_KEY}`;
+    const url = `https://apis.openapi.sk.com/tmap/app/nearby?appKey=${TMAP_API_KEY}&host=nearby&lat=${lat}&lon=${lng}&category=음식점&searchKeyword=${encodeURIComponent(selectedLocation.name)}`;
     window.open(url, '_blank');
-  };
+  }, [selectedLocation]);
 
   // 렌더링 부분
   return (
