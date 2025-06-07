@@ -74,7 +74,7 @@ function App() {
                     position: new window.Tmapv2.LatLng(latitude, longitude),
                     map: mapInstanceRef.current,
                     icon: process.env.PUBLIC_URL + '/images/me.png',
-                    iconSize: new window.Tmapv2.Size(40, 40)
+                    iconSize: new window.Tmapv2.Size(120, 120)
                   });
                   mapInstanceRef.current.setCenter(new window.Tmapv2.LatLng(latitude, longitude));
                 }
