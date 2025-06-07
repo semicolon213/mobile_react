@@ -528,7 +528,7 @@ function App() {
     }
 
     const { lat, lng } = selectedLocation;
-    const url = `https://apis.openapi.sk.com/tmap/app/nearby?appKey=${TMAP_API_KEY}&host=nearby&lat=${lat}&lon=${lng}&category=음식점&searchKeyword=${encodeURIComponent(selectedLocation.name)}`;
+    const url = `https://apis.openapi.sk.com/tmap/app/nearby?appKey=${TMAP_API_KEY}&host=nearby&lat=${lat}&lon=${lng}&category=음식점&radius=1000`;
     window.open(url, '_blank');
   }, [selectedLocation]);
 
