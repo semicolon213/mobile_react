@@ -133,7 +133,7 @@ body, .app-wrapper, .app-container {
 
 .travel-info-header .section-title {
   margin: 0;
-  font-size: 3.9rem;
+  font-size: 7.8rem;
   color: var(--main-red);
   font-weight: 600;
   display: flex;
@@ -292,7 +292,7 @@ body, .app-wrapper, .app-container {
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  transform: scale(1.5, 1.33);
+  transform: scale(1.5, 1.4);
   transform-origin: center center;
 }
 
