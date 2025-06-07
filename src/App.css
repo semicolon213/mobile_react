@@ -292,7 +292,7 @@ body, .app-wrapper, .app-container {
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  transform: scale(1.2, 1.33);
+  transform: scale(1.5, 1.33);
   transform-origin: center center;
 }
 
@@ -530,17 +530,16 @@ body, .app-wrapper, .app-container {
   z-index: 1000;
 }
 
-.detail-popup,
-.settings-popup {
+.detail-popup {
   background: var(--main-bg);
   color: var(--main-text-dark);
   border-radius: 16px;
   width: 90%;
-  max-width: 500px;
+  max-width: 600px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  transform: scale(1.2, 1.5);
+  transform: scale(1.5, 1.5);
   transform-origin: center center;
 }
 

@@ -26,7 +26,8 @@
     "start": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy": "npm run build && git add . && git commit -m \"$(date '+%Y-%m-%d %H:%M:%S') 배포\" && git push origin main --force"
   },
   "eslintConfig": {
     "extends": [
