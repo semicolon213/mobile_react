@@ -288,7 +288,7 @@ body, .app-wrapper, .app-container {
   color: var(--main-text-dark);
   border-radius: 16px;
   width: 90%;
-  max-width: 500px;
+  max-width: 600px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
