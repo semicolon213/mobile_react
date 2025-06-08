@@ -166,8 +166,8 @@ function App() {
     };
     // 이동수단별 감속 계수
     const reductionTable = {
-      car: 0.7,
-      public: 0.5, // 대중교통의 평균 감속 계수
+      car: 0.9,
+      public: 0.8,
     };
 
     const transport = selectedTransports[0]; // 단일 선택만 가능
@@ -179,9 +179,9 @@ function App() {
     const reduction = reductionTable[transport] || 1;
     outerRadius = outerRadius * reduction;
 
-    // 자동차의 경우 도넛 범위를 70% 작게 조정
+    // 자동차의 경우 도넛 범위를 30% 작게 조정
     if (transport === 'car') {
-      outerRadius = outerRadius * 0.3; // 30%로 축소 (70% 감소)
+      outerRadius = outerRadius * 0.7;
     }
 
     const innerRadius = outerRadius * 0.72;
