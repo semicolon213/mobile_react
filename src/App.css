@@ -6,6 +6,7 @@
   --main-red: #8B2D25;
   --main-text-dark: #8B2D25;
   --main-text-light: #fff;
+  --popup-bg: #fff;
 }
 
 * {
@@ -127,7 +128,7 @@ body, .app-wrapper, .app-container {
 }
 
 .travel-info {
-  background: var(--main-bg);
+  background: var(--popup-bg);
   border-radius: 1.2rem;
   padding: 0.5rem 1rem 1rem 1rem;
   color: var(--main-text-dark);
@@ -345,7 +346,7 @@ body, .app-wrapper, .app-container {
 
 .settings-popup,
 .detail-popup {
-  background: var(--main-bg);
+  background: var(--popup-bg);
   color: var(--main-text-dark);
   border-radius: 1.2rem;
   width: 90%;
@@ -592,7 +593,7 @@ body, .app-wrapper, .app-container {
 }
 
 .detail-popup {
-  background: var(--main-bg);
+  background: var(--popup-bg);
   color: var(--main-text-dark);
   border-radius: 16px;
   width: 90%;
@@ -948,6 +949,7 @@ body, .app-wrapper, .app-container {
   padding: 1.5rem;
   animation: fadeIn 0.5s ease-out;
   flex-shrink: 0;
+  background-color: var(--popup-bg);
 }
 
 .restaurant-name {
