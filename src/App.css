@@ -6,7 +6,6 @@
   --main-red: #8B2D25;
   --main-text-dark: #8B2D25;
   --main-text-light: #fff;
-  --background-dark: #000000;
 }
 
 * {
@@ -19,12 +18,12 @@ html, body {
   height: 100%;
   width: 100%;
   font-family: sans-serif;
-  background-color: var(--background-dark);
+  background-color: var(--main-bg);
   color: var(--main-text-light);
 }
 
 body, .app-wrapper, .app-container {
-  background: var(--background-dark);
+  background: var(--main-bg);
   color: var(--main-text-dark);
   height: 100vh;
 }
@@ -39,6 +38,8 @@ body, .app-wrapper, .app-container {
   box-shadow: none;
   justify-content: center;
   height: 8.75rem;
+  border-radius: 0 0 2rem 2rem;
+  margin: 0 1rem;
 }
 
 .header-inner {
@@ -60,7 +61,7 @@ body, .app-wrapper, .app-container {
 
 .settings-btn {
   position: absolute;
-  right: 2.5rem;
+  right: 3.5rem;
   top: 3rem;
   background: none;
   border: none;
@@ -90,7 +91,6 @@ body, .app-wrapper, .app-container {
 }
 
 .app-container {
-  background: var(--main-bg);
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -108,7 +108,7 @@ body, .app-wrapper, .app-container {
 }
 
 .map-container {
-  flex: 0.8 1 0;
+  flex: 1 1 0;
   min-height: 0;
   background: var(--main-bg);
   border-radius: 12px;
@@ -262,34 +262,33 @@ body, .app-wrapper, .app-container {
   font-size: 1.8rem;
   text-align: center;
   font-weight: 500;
+  word-break: keep-all;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.route-info-item:first-child {
+  background: rgba(139, 45, 37, 0.08);
+}
+
+.route-info-item:first-child i {
+  font-size: 3.2rem;
+}
+
+.route-info-item:first-child span {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--main-red);
 }
 
 .route-info-item:nth-child(1) { animation-delay: 0.1s; }
 .route-info-item:nth-child(2) { animation-delay: 0.2s; }
 .route-info-item:nth-child(3) { animation-delay: 0.3s; }
-
-.destination-info {
-  margin-top: 2rem;
-  padding: 1.5rem;
-  background: rgba(139, 45, 37, 0.03);
-  border-radius: 12px;
-  animation: fadeIn 0.5s ease-out;
-  animation-delay: 0.4s;
-  animation-fill-mode: both;
-}
-
-.destination-title {
-  font-size: 1.8rem;
-  color: var(--main-red);
-  margin-bottom: 1rem;
-  font-weight: 600;
-}
-
-.destination-name {
-  font-size: 2.2rem;
-  color: var(--main-text-dark);
-  font-weight: 500;
-}
 
 .start-btn {
   padding: 2.5rem;
