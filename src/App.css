@@ -3,10 +3,12 @@
 
 :root {
   --main-bg: #000;
+  --popup-bg: #fff;
   --main-red: #8B2D25;
   --main-text-dark: #8B2D25;
   --main-text-light: #fff;
-  --popup-bg: #fff;
+  --border-color: rgba(139, 45, 37, 0.1);
+  --hover-bg: rgba(139, 45, 37, 0.1);
 }
 
 * {
@@ -123,10 +125,6 @@ body, .app-wrapper, .app-container {
   margin-right: 0;
 }
 
-.travel-info, .start-btn {
-  flex-shrink: 0;
-}
-
 .travel-info {
   background: var(--popup-bg);
   border-radius: 1.2rem;
@@ -144,7 +142,7 @@ body, .app-wrapper, .app-container {
   align-items: center;
   margin-bottom: 3rem;
   padding: 2rem 0;
-  border-bottom: 1px solid rgba(139, 45, 37, 0.1);
+  border-bottom: 1px solid var(--border-color);
   height: 6.25rem;
 }
 
@@ -173,7 +171,7 @@ body, .app-wrapper, .app-container {
 .detail-btn,
 .nav-btn,
 .restaurant-btn {
-  background: none;
+  background: var(--popup-bg);
   border: none;
   color: var(--main-red);
   font-size: 3.25rem;
@@ -191,7 +189,7 @@ body, .app-wrapper, .app-container {
 .detail-btn:hover,
 .nav-btn:hover,
 .restaurant-btn:hover {
-  background-color: rgba(139, 45, 37, 0.1);
+  background-color: var(--hover-bg);
 }
 
 .nav-btn {
@@ -225,7 +223,7 @@ body, .app-wrapper, .app-container {
 }
 
 .travel-info-section {
-  background: var(--main-bg);
+  background: var(--popup-bg);
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -248,7 +246,7 @@ body, .app-wrapper, .app-container {
 }
 
 .destination-info {
-  background: rgba(139, 45, 37, 0.08) !important;
+  background: var(--popup-bg) !important;
   padding: 1.5rem !important;
 }
 
@@ -384,7 +382,7 @@ body, .app-wrapper, .app-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: none;
+  background: var(--popup-bg);
   border: none;
   color: var(--main-red);
   font-size: 1.8rem;
@@ -418,6 +416,7 @@ body, .app-wrapper, .app-container {
   padding: 2rem;
   flex: 1;
   overflow-y: auto;
+  background: var(--popup-bg);
 }
 
 .settings-grid {
@@ -511,7 +510,7 @@ body, .app-wrapper, .app-container {
 }
 
 .transport-btn:hover {
-  background: var(--main-bg);
+  background: var(--popup-bg);
   border-color: var(--main-red);
 }
 
@@ -632,6 +631,7 @@ body, .app-wrapper, .app-container {
   flex: 1;
   overflow-y: auto;
   max-height: 60vh;
+  background: var(--popup-bg);
 }
 
 .detail-grid {
@@ -676,7 +676,7 @@ body, .app-wrapper, .app-container {
   color: var(--main-text-dark);
   font-size: 1.4rem;
   padding: 0.6rem 0;
-  border-bottom: 1px solid rgba(139, 45, 37, 0.1);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .detail-info-item:last-child {
@@ -699,6 +699,7 @@ body, .app-wrapper, .app-container {
   padding: 2rem;
   text-align: center;
   color: var(--main-red);
+  background: var(--popup-bg);
 }
 
 .no-route-message i {
@@ -708,6 +709,129 @@ body, .app-wrapper, .app-container {
 
 .no-route-message p {
   font-size: 0.9rem;
+}
+
+.current-location-btn {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  width: 7rem;
+  height: 7rem;
+  background: var(--popup-bg);
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1000;
+  transition: all 0.2s ease;
+}
+
+.current-location-btn:hover {
+  background: var(--main-red);
+  color: var(--main-text-light);
+}
+
+.current-location-btn i {
+  font-size: 3.6rem;
+  color: var(--main-red);
+}
+
+.current-location-btn:hover i {
+  color: var(--main-text-light);
+}
+
+.loading-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  text-align: center;
+  color: var(--main-red);
+  background: var(--popup-bg);
+}
+
+.loading-message i {
+  font-size: 3rem;
+}
+
+.loading-message p {
+  font-size: 1.4rem;
+}
+
+.restaurant-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem;
+  max-height: 50vh;
+  overflow-y: auto;
+  background: var(--popup-bg);
+}
+
+.restaurant-item {
+  background: var(--popup-bg);
+  border-radius: 12px;
+  padding: 1.5rem;
+  animation: fadeIn 0.5s ease-out;
+  flex-shrink: 0;
+}
+
+.restaurant-name {
+  font-size: 2rem;
+  color: var(--main-red);
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.restaurant-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.restaurant-info p {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.4rem;
+  color: var(--main-text-dark);
+}
+
+.restaurant-info i {
+  color: var(--main-red);
+  font-size: 1.6rem;
+  width: 2rem;
+  text-align: center;
+}
+
+.tmap-search-btn {
+  margin-top: 1rem;
+  padding: 0.8rem 1.5rem;
+  background: var(--main-red);
+  color: var(--main-text-light);
+  border: none;
+  border-radius: 8px;
+  font-size: 1.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+.tmap-search-btn:hover {
+  background: var(--main-text-light);
+  color: var(--main-red);
+  border: 1px solid var(--main-red);
+}
+
+.tmap-search-btn i {
+  font-size: 1.4rem;
 }
 
 @media (max-width: 768px) {
@@ -883,125 +1007,4 @@ body, .app-wrapper, .app-container {
   stroke-dasharray: 1000;
   stroke-dashoffset: 1000;
   animation: pathDraw 1.5s ease-out forwards;
-}
-
-.current-location-btn {
-  position: absolute;
-  bottom: 1rem;
-  right: 1rem;
-  width: 7rem;
-  height: 7rem;
-  background: var(--popup-bg);
-  border: none;
-  border-radius: 50%;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 1000;
-  transition: all 0.2s ease;
-}
-
-.current-location-btn:hover {
-  background: var(--main-red);
-  color: var(--main-text-light);
-}
-
-.current-location-btn i {
-  font-size: 3.6rem;
-  color: var(--main-red);
-}
-
-.current-location-btn:hover i {
-  color: var(--main-text-light);
-}
-
-.loading-message {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  padding: 2rem;
-  text-align: center;
-  color: var(--main-red);
-}
-
-.loading-message i {
-  font-size: 3rem;
-}
-
-.loading-message p {
-  font-size: 1.4rem;
-}
-
-.restaurant-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  padding: 1rem;
-  max-height: 50vh;
-  overflow-y: auto;
-}
-
-.restaurant-item {
-  background: var(--popup-bg);
-  border-radius: 12px;
-  padding: 1.5rem;
-  animation: fadeIn 0.5s ease-out;
-  flex-shrink: 0;
-}
-
-.restaurant-name {
-  font-size: 2rem;
-  color: var(--main-red);
-  margin-bottom: 1rem;
-  font-weight: 600;
-}
-
-.restaurant-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-}
-
-.restaurant-info p {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  font-size: 1.4rem;
-  color: var(--main-text-dark);
-}
-
-.restaurant-info i {
-  color: var(--main-red);
-  font-size: 1.6rem;
-  width: 2rem;
-  text-align: center;
-}
-
-.tmap-search-btn {
-  margin-top: 1rem;
-  padding: 0.8rem 1.5rem;
-  background: var(--main-red);
-  color: var(--main-text-light);
-  border: none;
-  border-radius: 8px;
-  font-size: 1.4rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  transition: all 0.2s ease;
-}
-
-.tmap-search-btn:hover {
-  background: var(--main-text-light);
-  color: var(--main-red);
-  border: 1px solid var(--main-red);
-}
-
-.tmap-search-btn i {
-  font-size: 1.4rem;
 }
