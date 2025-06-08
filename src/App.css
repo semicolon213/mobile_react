@@ -269,7 +269,7 @@ body, .app-wrapper, .app-container {
 }
 
 .route-info-item {
-  background: rgba(139, 45, 37, 0.03);
+  background: var(--popup-bg);
   padding: 1rem;
   border-radius: 1.2rem;
   display: flex;
@@ -643,7 +643,7 @@ body, .app-wrapper, .app-container {
 }
 
 .detail-section {
-  background: var(--main-bg);
+  background: var(--popup-bg);
   border: 1px solid var(--main-red);
   border-radius: 12px;
   padding: 1.8rem;
