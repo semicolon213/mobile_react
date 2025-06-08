@@ -344,8 +344,22 @@ body, .app-wrapper, .app-container {
   color: var(--main-red);
 }
 
+.route-info-item:nth-child(4) {
+  background: var(--popup-bg);
+}
+
+.route-info-item:nth-child(4) i {
+  font-size: 3.2rem;
+}
+
+.route-info-item:nth-child(4) span {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--main-red);
+}
+
 .route-info-item:nth-child(1) { animation-delay: 0.1s; }
-.route-info-item:nth-child(4) { animation-delay: 0.4s; }
+.route-info-item:nth-child(3) { animation-delay: 0.3s; }
 
 .start-btn {
   padding: 2.5rem;
