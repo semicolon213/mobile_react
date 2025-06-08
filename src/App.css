@@ -38,7 +38,7 @@ body, .app-wrapper, .app-container {
   box-shadow: none;
   justify-content: center;
   height: 8.75rem;
-  border-radius: 0 0 2rem 2rem;
+  border-radius: 1.2rem;
   margin: 0 1rem;
 }
 
@@ -111,7 +111,7 @@ body, .app-wrapper, .app-container {
   flex: 1 1 0;
   min-height: 0;
   background: var(--main-bg);
-  border-radius: 12px;
+  border-radius: 1.2rem;
   overflow: hidden;
   height: 0;
   position: relative;
@@ -124,7 +124,7 @@ body, .app-wrapper, .app-container {
 
 .travel-info {
   background: var(--main-bg);
-  border-radius: 12px;
+  border-radius: 1.2rem;
   padding: 0.5rem 1rem 1rem 1rem;
   color: var(--main-text-dark);
   margin-bottom: 1rem;
@@ -263,7 +263,7 @@ body, .app-wrapper, .app-container {
 .route-info-item {
   background: rgba(139, 45, 37, 0.03);
   padding: 1rem;
-  border-radius: 8px;
+  border-radius: 1.2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -316,7 +316,7 @@ body, .app-wrapper, .app-container {
   background: var(--main-red);
   color: var(--main-text-light);
   border: none;
-  border-radius: 12px;
+  border-radius: 1.2rem;
   font-size: 2.5rem;
   font-weight: 500;
   cursor: pointer;
@@ -338,7 +338,7 @@ body, .app-wrapper, .app-container {
 .detail-popup {
   background: var(--main-bg);
   color: var(--main-text-dark);
-  border-radius: 16px;
+  border-radius: 1.2rem;
   width: 90%;
   max-width: 600px;
   max-height: 90vh;
