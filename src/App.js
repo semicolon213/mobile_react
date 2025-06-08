@@ -631,24 +631,25 @@ function App() {
                   </div>
                 </div>
                 <div className="route-info">
-                  {routeInfo.fare > 0 ? (
-                    <div className="route-info-item">
-                      <i className="fas fa-won-sign"></i>
-                      <span>{routeInfo.fare}원</span>
-                    </div>
-                  ) : (
-                    <div className="route-info-item">
-                      <i className="fas fa-map-marker-alt"></i>
-                      <span>{selectedLocation.name}</span>
-                    </div>
-                  )}
-                  <div className="route-info-item">
-                    <i className="fas fa-road"></i>
-                    <span>{routeInfo.distance}km</span>
+                  <div className="route-info-item destination-info">
+                    <i className="fas fa-map-marker-alt"></i>
+                    <span>{selectedLocation.name}</span>
                   </div>
-                  <div className="route-info-item">
-                    <i className="fas fa-clock"></i>
-                    <span>{routeInfo.time}분</span>
+                  <div className="route-info-grid">
+                    {routeInfo.fare > 0 ? (
+                      <div className="route-info-item">
+                        <i className="fas fa-won-sign"></i>
+                        <span>{routeInfo.fare}원</span>
+                      </div>
+                    ) : null}
+                    <div className="route-info-item">
+                      <i className="fas fa-road"></i>
+                      <span>{routeInfo.distance}km</span>
+                    </div>
+                    <div className="route-info-item">
+                      <i className="fas fa-clock"></i>
+                      <span>{routeInfo.time}분</span>
+                    </div>
                   </div>
                 </div>
               </div>

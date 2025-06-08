@@ -115,7 +115,7 @@ body, .app-wrapper, .app-container {
   overflow: hidden;
   height: 0;
   position: relative;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .travel-info, .start-btn {
@@ -233,10 +233,31 @@ body, .app-wrapper, .app-container {
 }
 
 .route-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.destination-info {
+  background: rgba(139, 45, 37, 0.08) !important;
+  padding: 1.5rem !important;
+}
+
+.destination-info i {
+  font-size: 3.2rem !important;
+}
+
+.destination-info span {
+  font-size: 2rem !important;
+  font-weight: 600 !important;
+  color: var(--main-red) !important;
+}
+
+.route-info-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
-  margin-top: 1rem;
 }
 
 .route-info-item {
