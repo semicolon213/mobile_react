@@ -520,54 +520,48 @@ function App() {
     window.open(url, '_blank');
   }, [selectedLocation]);
 
-  // 음식점 찾기 함수를 편의점 검색 함수로 변경
-  const openNearbyConvenienceStores = useCallback(async () => {
+  // 음식점 찾기 함수 수정
+  const openNearbyRestaurants = useCallback(async () => {
     if (!selectedLocation) {
       alert('먼저 여행지를 선택해주세요.');
       return;
     }
 
     try {
-      const data = await searchNearbyPharmacies(selectedLocation.lng, selectedLocation.lat);
-      if (data && data.searchPoiInfo && data.searchPoiInfo.pois && data.searchPoiInfo.pois.poi) {
-        const pois = Array.isArray(data.searchPoiInfo.pois.poi) 
-          ? data.searchPoiInfo.pois.poi 
-          : [data.searchPoiInfo.pois.poi];
-        
-        // 검색된 편의점 정보를 지도에 표시
-        pois.forEach(poi => {
-          new window.Tmapv2.Marker({
-            position: new window.Tmapv2.LatLng(poi.frontLat, poi.frontLon),
-            map: mapInstanceRef.current,
-            icon: process.env.PUBLIC_URL + '/images/store.png',
-            iconSize: new window.Tmapv2.Size(80, 80),
-            label: poi.name,
-            labelStyle: {
-              backgroundColor: '#FFFFFF',
-              color: '#000000',
-              fontSize: '24px',
-              padding: '8px 16px',
-              borderRadius: '8px'
-            }
-          });
-        });
+      const options = {
+        method: 'GET',
+        headers: {
+          accept: 'application/json',
+          appKey: TMAP_API_KEY
+        }
+      };
 
-        // 지도 이동 애니메이션
-        const bounds = new window.Tmapv2.LatLngBounds();
-        bounds.extend(new window.Tmapv2.LatLng(selectedLocation.lat, selectedLocation.lng));
-        pois.forEach(poi => {
-          bounds.extend(new window.Tmapv2.LatLng(poi.frontLat, poi.frontLon));
-        });
-        mapInstanceRef.current.fitBounds(bounds, {
-          padding: 50,
-          duration: 1000
-        });
+      const response = await fetch(
+        `https://apis.openapi.sk.com/tmap/pois/search/around?version=1&centerLon=${selectedLocation.lng}&centerLat=${selectedLocation.lat}&categories=음식점&page=1&count=20&radius=1&reqCoordType=WGS84GEO&resCoordType=WGS84GEO&multiPoint=N`,
+        options
+      );
+      
+      const data = await response.json();
+      console.log('주변 음식점 검색 결과:', data);
+
+      if (data && data.searchPoiInfo && data.searchPoiInfo.pois && data.searchPoiInfo.pois.poi) {
+        const restaurants = data.searchPoiInfo.pois.poi;
+        if (restaurants.length > 0) {
+          // 검색된 음식점 중 랜덤으로 하나 선택
+          const randomRestaurant = restaurants[Math.floor(Math.random() * restaurants.length)];
+          
+          // 선택된 음식점의 위치로 Tmap 앱 열기
+          const url = `https://apis.openapi.sk.com/tmap/app/nearby?appKey=${TMAP_API_KEY}&host=nearby&lat=${randomRestaurant.frontLat}&lon=${randomRestaurant.frontLon}&category=음식점`;
+          window.open(url, '_blank');
+        } else {
+          alert('주변에 음식점을 찾을 수 없습니다.');
+        }
       } else {
-        alert('주변에 편의점이 없습니다.');
+        alert('음식점 검색에 실패했습니다.');
       }
     } catch (error) {
-      console.error('편의점 검색 중 오류 발생:', error);
-      alert('편의점 검색에 실패했습니다.');
+      console.error('음식점 검색 중 오류 발생:', error);
+      alert('음식점 검색 중 오류가 발생했습니다.');
     }
   }, [selectedLocation]);
 
@@ -641,10 +635,10 @@ function App() {
                   </button>
                     <button 
                       className="restaurant-btn"
-                      onClick={openNearbyConvenienceStores}
-                      title="주변 편의점 찾기"
+                      onClick={openNearbyRestaurants}
+                      title="주변 음식점 찾기"
                     >
-                      <i className="fas fa-store"></i>
+                      <i className="fas fa-utensils"></i>
                     </button>
                     <button 
                       className="nav-btn"
