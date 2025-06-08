@@ -273,7 +273,7 @@ function App() {
       setRouteInfo({
         distance: (result.totalDistance / 1000).toFixed(1),
         time: (result.totalTime / 60).toFixed(0),
-        fare: result.totalFare
+        fare: result.totalFare || 0
       });
       if (routeLine) routeLine.setMap(null);
       resultData.forEach(data => {
@@ -636,12 +636,12 @@ function App() {
                     <span>{selectedLocation.name}</span>
                   </div>
                   <div className="route-info-grid">
-                    {routeInfo.fare > 0 ? (
+                    {routeInfo.fare > 0 && (
                       <div className="route-info-item">
                         <i className="fas fa-won-sign"></i>
-                        <span>{routeInfo.fare}원</span>
+                        <span>{routeInfo.fare.toLocaleString()}원</span>
                       </div>
-                    ) : null}
+                    )}
                     <div className="route-info-item">
                       <i className="fas fa-road"></i>
                       <span>{routeInfo.distance}km</span>
