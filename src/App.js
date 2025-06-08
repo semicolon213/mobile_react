@@ -392,7 +392,7 @@ function App() {
 
         setRouteInfo({
           distance: totalDistance.toFixed(1),
-          time: totalTime,
+          time: totalTime.toString(),
           fare: totalFare
         });
       } else {
