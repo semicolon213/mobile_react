@@ -104,8 +104,8 @@ body, .app-wrapper, .app-container {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.5rem;
+  gap: 1rem;
+  padding: 1rem;
   background: var(--main-bg);
   height: calc(100vh - 64px);
   overflow: hidden;
@@ -119,7 +119,7 @@ body, .app-wrapper, .app-container {
   overflow: hidden;
   height: 0;
   position: relative;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
   width: 100%;
   margin-left: 0;
   margin-right: 0;
@@ -130,7 +130,7 @@ body, .app-wrapper, .app-container {
   border-radius: 1.2rem;
   padding: 0.5rem 1rem 1rem 1rem;
   color: var(--main-text-dark);
-  margin-bottom: 1rem;
+  margin-bottom: 0;
   width: 100%;
   margin-left: 0;
   margin-right: 0;
@@ -779,6 +779,11 @@ body, .app-wrapper, .app-container {
   padding: 1.5rem;
   animation: fadeIn 0.5s ease-out;
   flex-shrink: 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.restaurant-item:last-child {
+  border-bottom: none;
 }
 
 .restaurant-name {
