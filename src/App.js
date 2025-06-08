@@ -338,6 +338,8 @@ function App() {
         })
       });
       const data = await response.json();
+      console.log('대중교통 API 응답:', data); // 디버깅을 위한 로그 추가
+      
       // 기존 경로 제거
       if (routeLine) routeLine.setMap(null);
       
@@ -347,54 +349,71 @@ function App() {
 
       if (data.metaData && data.metaData.plan && data.metaData.plan.itineraries && data.metaData.plan.itineraries.length > 0) {
         const itinerary = data.metaData.plan.itineraries[0];
-        totalDistance = itinerary.distance / 1000;
-        totalTime = Math.round(itinerary.duration / 60);
+        
+        // 거리 계산 (미터를 킬로미터로 변환)
+        totalDistance = (itinerary.distance || 0) / 1000;
+        
+        // 시간 계산 (초를 분으로 변환)
+        totalTime = Math.round((itinerary.duration || 0) / 60);
+        
+        // 요금 계산
         totalFare = itinerary.fare ? itinerary.fare.regular.totalFare : 0;
 
+        console.log('계산된 거리:', totalDistance); // 디버깅을 위한 로그 추가
+        console.log('계산된 시간:', totalTime); // 디버깅을 위한 로그 추가
+
         // 각 구간별로 다른 색상의 경로 표시
-        itinerary.legs.forEach((leg, index) => {
-          if (leg.mode === 'WALK' || leg.mode === 'BUS' || leg.mode === 'SUBWAY') {
-            const legPath = leg.passShape && leg.passShape.linestring
-              ? leg.passShape.linestring.split(' ').map(pair => {
-                  const [lng, lat] = pair.split(',').map(Number);
-                  return new window.Tmapv2.LatLng(lat, lng);
-                })
-              : [];
+        if (itinerary.legs && itinerary.legs.length > 0) {
+          itinerary.legs.forEach((leg, index) => {
+            if (leg.mode === 'WALK' || leg.mode === 'BUS' || leg.mode === 'SUBWAY') {
+              const legPath = leg.passShape && leg.passShape.linestring
+                ? leg.passShape.linestring.split(' ').map(pair => {
+                    const [lng, lat] = pair.split(',').map(Number);
+                    return new window.Tmapv2.LatLng(lat, lng);
+                  })
+                : [];
 
-            if (legPath.length > 1) {
-              // 이동 수단별 색상 설정
-              let strokeColor;
-              switch (leg.mode) {
-                case 'WALK':
-                  strokeColor = '#666666'; // 도보: 회색
-                  break;
-                case 'BUS':
-                  strokeColor = '#3399ff'; // 버스: 파란색
-                  break;
-                case 'SUBWAY':
-                  strokeColor = '#ff6600'; // 지하철: 주황색
-                  break;
-                default:
-                  strokeColor = '#666666';
+              if (legPath.length > 1) {
+                // 이동 수단별 색상 설정
+                let strokeColor;
+                switch (leg.mode) {
+                  case 'WALK':
+                    strokeColor = '#666666'; // 도보: 회색
+                    break;
+                  case 'BUS':
+                    strokeColor = '#3399ff'; // 버스: 파란색
+                    break;
+                  case 'SUBWAY':
+                    strokeColor = '#ff6600'; // 지하철: 주황색
+                    break;
+                  default:
+                    strokeColor = '#666666';
+                }
+
+                const polyline = new window.Tmapv2.Polyline({
+                  path: legPath,
+                  strokeColor: strokeColor,
+                  strokeWeight: 6,
+                  map: mapInstanceRef.current,
+                  className: 'path-animation'
+                });
+                setRouteLine(polyline);
               }
-
-              const polyline = new window.Tmapv2.Polyline({
-                path: legPath,
-                strokeColor: strokeColor,
-                strokeWeight: 6,
-                map: mapInstanceRef.current,
-                className: 'path-animation'
-              });
-              setRouteLine(polyline);
             }
-          }
-        });
+          });
+        }
 
-        setRouteInfo({
-          distance: totalDistance.toFixed(1),
-          time: totalTime.toString(),
-          fare: totalFare
-        });
+        // 거리와 시간이 유효한 값인지 확인
+        if (!isNaN(totalDistance) && !isNaN(totalTime)) {
+          setRouteInfo({
+            distance: totalDistance.toFixed(1),
+            time: totalTime.toString(),
+            fare: totalFare
+          });
+        } else {
+          console.error('유효하지 않은 거리 또는 시간:', { totalDistance, totalTime });
+          alert('경로 정보를 가져오는데 실패했습니다.');
+        }
       } else {
         alert('대중교통 경로를 찾을 수 없습니다.');
       }
