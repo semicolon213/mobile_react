@@ -1,4 +1,3 @@
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
@@ -16,7 +15,6 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
 }
 
 html, body {
@@ -266,24 +264,27 @@ body, .app-wrapper, .app-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
+  width: 100%;
 }
 
 .route-info-item {
   background: var(--popup-bg);
-  padding: 1rem;
+  padding: 1.5rem 1rem;
   border-radius: 1.2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.8rem;
   animation: slideIn 0.5s ease-out;
   animation-fill-mode: both;
+  height: 100%;
+  justify-content: center;
 }
 
 .route-info-item i {
   font-size: 2.8rem;
   color: var(--main-red);
-  margin-bottom: 0.3rem;
+  margin-bottom: 0;
 }
 
 .route-info-item span {
