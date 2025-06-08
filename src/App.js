@@ -353,13 +353,29 @@ function App() {
         // 거리와 시간 계산
         if (itinerary.legs && itinerary.legs.length > 0) {
           totalDistance = itinerary.legs.reduce((sum, leg) => {
-            const distance = leg.distance || 0;
-            return sum + distance;
+            // 각 구간의 거리 계산
+            let legDistance = 0;
+            if (leg.distance) {
+              legDistance = leg.distance;
+            } else if (leg.sections && leg.sections.length > 0) {
+              legDistance = leg.sections.reduce((sectionSum, section) => {
+                return sectionSum + (section.distance || 0);
+              }, 0);
+            }
+            return sum + legDistance;
           }, 0) / 1000; // 미터를 킬로미터로 변환
 
           totalTime = Math.round(itinerary.legs.reduce((sum, leg) => {
-            const duration = leg.duration || 0;
-            return sum + duration;
+            // 각 구간의 시간 계산
+            let legDuration = 0;
+            if (leg.duration) {
+              legDuration = leg.duration;
+            } else if (leg.sections && leg.sections.length > 0) {
+              legDuration = leg.sections.reduce((sectionSum, section) => {
+                return sectionSum + (section.duration || 0);
+              }, 0);
+            }
+            return sum + legDuration;
           }, 0) / 60); // 초를 분으로 변환
         }
 
@@ -376,12 +392,26 @@ function App() {
         if (itinerary.legs && itinerary.legs.length > 0) {
           itinerary.legs.forEach((leg, index) => {
             if (leg.mode === 'WALK' || leg.mode === 'BUS' || leg.mode === 'SUBWAY') {
-              const legPath = leg.passShape && leg.passShape.linestring
-                ? leg.passShape.linestring.split(' ').map(pair => {
-                    const [lng, lat] = pair.split(',').map(Number);
-                    return new window.Tmapv2.LatLng(lat, lng);
-                  })
-                : [];
+              let legPath = [];
+              
+              // 경로 좌표 추출
+              if (leg.passShape && leg.passShape.linestring) {
+                legPath = leg.passShape.linestring.split(' ').map(pair => {
+                  const [lng, lat] = pair.split(',').map(Number);
+                  return new window.Tmapv2.LatLng(lat, lng);
+                });
+              } else if (leg.sections && leg.sections.length > 0) {
+                legPath = leg.sections.reduce((paths, section) => {
+                  if (section.linestring) {
+                    const sectionPath = section.linestring.split(' ').map(pair => {
+                      const [lng, lat] = pair.split(',').map(Number);
+                      return new window.Tmapv2.LatLng(lat, lng);
+                    });
+                    return [...paths, ...sectionPath];
+                  }
+                  return paths;
+                }, []);
+              }
 
               if (legPath.length > 1) {
                 // 이동 수단별 색상 설정
