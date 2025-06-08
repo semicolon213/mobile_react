@@ -644,7 +644,7 @@ body, .app-wrapper, .app-container {
 
 .detail-section {
   background: var(--popup-bg);
-  border: 1px solid var(--main-red);
+  border: none;
   border-radius: 12px;
   padding: 1.8rem;
 }
