@@ -337,25 +337,8 @@ function App() {
           count: 1
         })
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        if (response.status === 429) {
-          console.error('API 호출 제한 초과:', errorData);
-          alert('일시적으로 대중교통 경로를 생성할 수 없습니다. 잠시 후 다시 시도해주세요.');
-          return;
-        }
-        throw new Error(`API 요청 실패: ${response.status}`);
-      }
-
       const data = await response.json();
-      console.log('대중교통 API 응답:', data);
-      
-      if (data.error) {
-        console.error('API 에러:', data.error);
-        alert('대중교통 경로를 생성하는데 실패했습니다.');
-        return;
-      }
+      console.log('대중교통 API 응답:', data); // 디버깅을 위한 로그 추가
       
       // 기존 경로 제거
       if (routeLine) routeLine.setMap(null);
@@ -367,68 +350,28 @@ function App() {
       if (data.metaData && data.metaData.plan && data.metaData.plan.itineraries && data.metaData.plan.itineraries.length > 0) {
         const itinerary = data.metaData.plan.itineraries[0];
         
-        // 거리와 시간 계산
-        if (itinerary.legs && itinerary.legs.length > 0) {
-          totalDistance = itinerary.legs.reduce((sum, leg) => {
-            // 각 구간의 거리 계산
-            let legDistance = 0;
-            if (leg.distance) {
-              legDistance = leg.distance;
-            } else if (leg.sections && leg.sections.length > 0) {
-              legDistance = leg.sections.reduce((sectionSum, section) => {
-                return sectionSum + (section.distance || 0);
-              }, 0);
-            }
-            return sum + legDistance;
-          }, 0) / 1000; // 미터를 킬로미터로 변환
-
-          totalTime = Math.round(itinerary.legs.reduce((sum, leg) => {
-            // 각 구간의 시간 계산
-            let legDuration = 0;
-            if (leg.duration) {
-              legDuration = leg.duration;
-            } else if (leg.sections && leg.sections.length > 0) {
-              legDuration = leg.sections.reduce((sectionSum, section) => {
-                return sectionSum + (section.duration || 0);
-              }, 0);
-            }
-            return sum + legDuration;
-          }, 0) / 60); // 초를 분으로 변환
-        }
-
+        // 거리 계산 (미터를 킬로미터로 변환)
+        totalDistance = (itinerary.distance || 0) / 1000;
+        
+        // 시간 계산 (초를 분으로 변환)
+        totalTime = Math.round((itinerary.duration || 0) / 60);
+        
         // 요금 계산
-        if (itinerary.fare && itinerary.fare.regular) {
-          totalFare = itinerary.fare.regular.totalFare || 0;
-        }
+        totalFare = itinerary.fare ? itinerary.fare.regular.totalFare : 0;
 
-        console.log('계산된 거리:', totalDistance);
-        console.log('계산된 시간:', totalTime);
-        console.log('계산된 요금:', totalFare);
+        console.log('계산된 거리:', totalDistance); // 디버깅을 위한 로그 추가
+        console.log('계산된 시간:', totalTime); // 디버깅을 위한 로그 추가
 
         // 각 구간별로 다른 색상의 경로 표시
         if (itinerary.legs && itinerary.legs.length > 0) {
           itinerary.legs.forEach((leg, index) => {
             if (leg.mode === 'WALK' || leg.mode === 'BUS' || leg.mode === 'SUBWAY') {
-              let legPath = [];
-              
-              // 경로 좌표 추출
-              if (leg.passShape && leg.passShape.linestring) {
-                legPath = leg.passShape.linestring.split(' ').map(pair => {
-                  const [lng, lat] = pair.split(',').map(Number);
-                  return new window.Tmapv2.LatLng(lat, lng);
-                });
-              } else if (leg.sections && leg.sections.length > 0) {
-                legPath = leg.sections.reduce((paths, section) => {
-                  if (section.linestring) {
-                    const sectionPath = section.linestring.split(' ').map(pair => {
-                      const [lng, lat] = pair.split(',').map(Number);
-                      return new window.Tmapv2.LatLng(lat, lng);
-                    });
-                    return [...paths, ...sectionPath];
-                  }
-                  return paths;
-                }, []);
-              }
+              const legPath = leg.passShape && leg.passShape.linestring
+                ? leg.passShape.linestring.split(' ').map(pair => {
+                    const [lng, lat] = pair.split(',').map(Number);
+                    return new window.Tmapv2.LatLng(lat, lng);
+                  })
+                : [];
 
               if (legPath.length > 1) {
                 // 이동 수단별 색상 설정
@@ -461,7 +404,7 @@ function App() {
         }
 
         // 거리와 시간이 유효한 값인지 확인
-        if (!isNaN(totalDistance) && !isNaN(totalTime) && totalDistance > 0 && totalTime > 0) {
+        if (!isNaN(totalDistance) && !isNaN(totalTime)) {
           setRouteInfo({
             distance: totalDistance.toFixed(1),
             time: totalTime.toString(),
@@ -472,7 +415,6 @@ function App() {
           alert('경로 정보를 가져오는데 실패했습니다.');
         }
       } else {
-        console.error('대중교통 경로 데이터 없음:', data);
         alert('대중교통 경로를 찾을 수 없습니다.');
       }
     } catch (error) {
