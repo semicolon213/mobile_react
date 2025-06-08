@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
 :root {
@@ -16,13 +15,12 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Noto Sans KR', sans-serif;
 }
 
 html, body {
   height: 100%;
   width: 100%;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: sans-serif;
   background-color: var(--main-bg);
   color: var(--main-text-light);
 }
@@ -218,7 +216,6 @@ body, .app-wrapper, .app-container {
   display: flex;
   align-items: center;
   gap: 1rem;
-  font-family: 'Noto Sans KR', sans-serif;
 }
 
 .section-title i {
@@ -291,10 +288,10 @@ body, .app-wrapper, .app-container {
 }
 
 .route-info-item span {
-  color: var(--main-text-dark);
-  font-size: 1.8rem;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--main-red);
   text-align: center;
-  font-weight: 500;
   word-break: keep-all;
   line-height: 1.2;
   max-width: 100%;
@@ -303,7 +300,6 @@ body, .app-wrapper, .app-container {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  font-family: 'Noto Sans KR', sans-serif;
 }
 
 .route-info-item:first-child {
@@ -371,7 +367,6 @@ body, .app-wrapper, .app-container {
   margin-left: 0;
   margin-right: 0;
   transition: all 0.2s ease;
-  font-family: 'Noto Sans KR', sans-serif;
 }
 
 .start-btn:hover {
@@ -694,7 +689,6 @@ body, .app-wrapper, .app-container {
   display: flex;
   align-items: center;
   gap: 0.8rem;
-  font-family: 'Noto Sans KR', sans-serif;
 }
 
 .detail-title i {
@@ -715,7 +709,6 @@ body, .app-wrapper, .app-container {
   font-size: 1.4rem;
   padding: 0.6rem 0;
   border-bottom: 1px solid var(--border-color);
-  font-family: 'Noto Sans KR', sans-serif;
 }
 
 .detail-info-item:last-child {
@@ -830,7 +823,6 @@ body, .app-wrapper, .app-container {
   color: var(--main-red);
   margin-bottom: 1rem;
   font-weight: 600;
-  font-family: 'Noto Sans KR', sans-serif;
 }
 
 .restaurant-info {
@@ -845,7 +837,6 @@ body, .app-wrapper, .app-container {
   gap: 1rem;
   font-size: 1.4rem;
   color: var(--main-text-dark);
-  font-family: 'Noto Sans KR', sans-serif;
 }
 
 .restaurant-info i {
