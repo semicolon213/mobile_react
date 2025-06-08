@@ -337,8 +337,25 @@ function App() {
           count: 1
         })
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (response.status === 429) {
+          console.error('API 호출 제한 초과:', errorData);
+          alert('일시적으로 대중교통 경로를 생성할 수 없습니다. 잠시 후 다시 시도해주세요.');
+          return;
+        }
+        throw new Error(`API 요청 실패: ${response.status}`);
+      }
+
       const data = await response.json();
       console.log('대중교통 API 응답:', data);
+      
+      if (data.error) {
+        console.error('API 에러:', data.error);
+        alert('대중교통 경로를 생성하는데 실패했습니다.');
+        return;
+      }
       
       // 기존 경로 제거
       if (routeLine) routeLine.setMap(null);
