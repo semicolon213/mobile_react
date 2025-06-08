@@ -19,8 +19,6 @@ function App() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [hasPreviousTravel, setHasPreviousTravel] = useState(false);  // 이전 여행지 생성 여부 추적
-  const [restaurantInfo, setRestaurantInfo] = useState([]);
-  const [showRestaurantInfo, setShowRestaurantInfo] = useState(false);
 
   // 지도, 마커, 원, 폴리곤 등 지도 객체를 저장할 ref 선언
   const mapRef = useRef(null);
@@ -523,43 +521,21 @@ function App() {
   }, [selectedLocation]);
 
   // 음식점 찾기 함수 추가
-  const handleRestaurantSearch = async () => {
+  const openNearbyRestaurants = async () => {
     if (!window._randomTravelMarkerB) {
-      alert('먼저 랜덤 여행지를 생성해주세요.');
+      alert("먼저 랜덤 여행지를 생성해주세요.");
       return;
     }
 
     const position = window._randomTravelMarkerB.getPosition();
     const lat = position.lat();
     const lng = position.lng();
-
-    try {
-      const response = await fetch(`https://dapi.kakao.com/v2/local/search/keyword.json?query=음식점&x=${lng}&y=${lat}&radius=1000`, {
-        headers: {
-          'Authorization': `KakaoAK ${process.env.REACT_APP_KAKAO_REST_API_KEY}`
-        }
-      });
-
-      const data = await response.json();
-      if (data.documents && data.documents.length > 0) {
-        const restaurants = data.documents.map(place => ({
-          name: place.place_name,
-          address: place.address_name,
-          distance: place.distance,
-          category: place.category_name,
-          url: place.place_url
-        }));
-
-        // 음식점 정보를 팝업으로 표시
-        setRestaurantInfo(restaurants);
-        setShowRestaurantInfo(true);
-      } else {
-        alert('주변에 음식점을 찾을 수 없습니다.');
-      }
-    } catch (error) {
-      console.error('음식점 검색 중 오류 발생:', error);
-      alert('음식점 검색 중 오류가 발생했습니다.');
-    }
+    
+    // 티맵 음식점 검색 URL 생성
+    const tmapUrl = `https://apis.openapi.sk.com/tmap/pois?version=1&searchKeyword=음식점&centerLon=${lng}&centerLat=${lat}&radius=1&appKey=${TMAP_API_KEY}`;
+    
+    // 새 창에서 티맵 열기
+    window.open(tmapUrl, '_blank');
   };
 
   // 렌더링 부분
@@ -608,7 +584,7 @@ function App() {
                   </button>
                     <button 
                       className="restaurant-btn"
-                      onClick={handleRestaurantSearch}
+                      onClick={openNearbyRestaurants}
                       title="주변 음식점 찾기"
                     >
                       <i className="fas fa-utensils"></i>
@@ -841,32 +817,6 @@ function App() {
             </div>
           </div>
       </div>
-      )}
-
-      {showRestaurantInfo && (
-        <div className="restaurant-popup-overlay">
-          <div className="restaurant-popup">
-            <div className="restaurant-popup-header">
-              <h2>주변 음식점</h2>
-              <button className="close-btn" onClick={() => setShowRestaurantInfo(false)}>
-                <i className="fas fa-times"></i>
-              </button>
-            </div>
-            <div className="restaurant-popup-content">
-              {restaurantInfo.map((restaurant, index) => (
-                <div key={index} className="restaurant-item">
-                  <h3>{restaurant.name}</h3>
-                  <p><i className="fas fa-map-marker-alt"></i> {restaurant.address}</p>
-                  <p><i className="fas fa-walking"></i> {Math.round(restaurant.distance)}m</p>
-                  <p><i className="fas fa-utensils"></i> {restaurant.category}</p>
-                  <a href={restaurant.url} target="_blank" rel="noopener noreferrer" className="restaurant-link">
-                    상세 정보 보기
-                  </a>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
       )}
     </div>
   )
