@@ -551,8 +551,8 @@ function App() {
           })
           .map(poi => ({
             name: poi.name,
-            address: poi.address,
-            tel: poi.telNo
+            address: poi.newAddress || poi.address || '주소 정보 없음',
+            tel: poi.telNo || '전화번호 정보 없음'
           }));
         
         setRestaurants(filteredRestaurants);
