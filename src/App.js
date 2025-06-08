@@ -570,37 +570,6 @@ function App() {
     }
   };
 
-  // 티맵 상세 검색 함수 수정
-  const openTmapSearch = async (restaurant) => {
-    try {
-      // 먼저 POI ID로 상세 정보 조회
-      const response = await fetch(`https://apis.openapi.sk.com/tmap/pois/${restaurant.id}?version=1&findOption=id&resCoordType=WGS84GEO`, {
-        method: 'GET',
-        headers: {
-          'accept': 'application/json',
-          'appKey': TMAP_API_KEY
-        }
-      });
-      
-      const data = await response.json();
-      
-      if (data && data.poiDetailInfo) {
-        // 상세 정보가 있으면 해당 위치로 티맵 앱 열기
-        const url = `https://apis.openapi.sk.com/tmap/app/routes?appKey=${TMAP_API_KEY}&goalname=${encodeURIComponent(restaurant.name)}&goalx=${restaurant.lng}&goaly=${restaurant.lat}`;
-        window.open(url, '_blank');
-      } else {
-        // 상세 정보가 없으면 일반 검색으로 대체
-        const url = `https://apis.openapi.sk.com/tmap/app/routes?appKey=${TMAP_API_KEY}&goalname=${encodeURIComponent(restaurant.name)}`;
-        window.open(url, '_blank');
-      }
-    } catch (error) {
-      console.error('티맵 검색 에러:', error);
-      // 에러 발생 시 일반 검색으로 대체
-      const url = `https://apis.openapi.sk.com/tmap/app/routes?appKey=${TMAP_API_KEY}&goalname=${encodeURIComponent(restaurant.name)}`;
-      window.open(url, '_blank');
-    }
-  };
-
   // 렌더링 부분
   return (
     <div className="app-wrapper">
@@ -916,12 +885,6 @@ function App() {
                       <h3 className="restaurant-name">{restaurant.name}</h3>
                       <div className="restaurant-info">
                         {restaurant.tel && <p><i className="fas fa-phone"></i> {restaurant.tel}</p>}
-                        <button 
-                          className="tmap-search-btn"
-                          onClick={() => openTmapSearch(restaurant)}
-                        >
-                          <i className="fas fa-search"></i> 자세히 보기
-                        </button>
                       </div>
                     </div>
                   ))}

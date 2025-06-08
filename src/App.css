@@ -64,8 +64,15 @@ body, .app-wrapper, .app-container {
   background: none;
   border: none;
   color: var(--main-text-light);
-  font-size: 2.5rem;
+  font-size: 3rem;
   cursor: pointer;
+  width: 4rem;
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
 }
 
 .settings-btn:hover {
@@ -825,8 +832,8 @@ body, .app-wrapper, .app-container {
   position: absolute;
   bottom: 1rem;
   right: 1rem;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 3.5rem;
+  height: 3.5rem;
   background: var(--main-bg);
   border: none;
   border-radius: 50%;
@@ -845,7 +852,7 @@ body, .app-wrapper, .app-container {
 }
 
 .current-location-btn i {
-  font-size: 1.2rem;
+  font-size: 1.8rem;
   color: var(--main-red);
 }
 
