@@ -651,6 +651,12 @@ function App() {
                     <span>{routeInfo.time}분</span>
                   </div>
                 </div>
+                {selectedLocation && (
+                  <div className="destination-info">
+                    <h4 className="destination-title">여행지</h4>
+                    <p className="destination-name">{selectedLocation.name}</p>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="no-route-message">

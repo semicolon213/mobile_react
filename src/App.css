@@ -6,6 +6,7 @@
   --main-red: #8B2D25;
   --main-text-dark: #8B2D25;
   --main-text-light: #fff;
+  --background-dark: #000000;
 }
 
 * {
@@ -18,12 +19,12 @@ html, body {
   height: 100%;
   width: 100%;
   font-family: sans-serif;
-  background-color: var(--main-bg);
+  background-color: var(--background-dark);
   color: var(--main-text-light);
 }
 
 body, .app-wrapper, .app-container {
-  background: var(--main-bg);
+  background: var(--background-dark);
   color: var(--main-text-dark);
   height: 100vh;
 }
@@ -89,6 +90,7 @@ body, .app-wrapper, .app-container {
 }
 
 .app-container {
+  background: var(--main-bg);
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -106,7 +108,7 @@ body, .app-wrapper, .app-container {
 }
 
 .map-container {
-  flex: 1 1 0;
+  flex: 0.8 1 0;
   min-height: 0;
   background: var(--main-bg);
   border-radius: 12px;
@@ -265,6 +267,29 @@ body, .app-wrapper, .app-container {
 .route-info-item:nth-child(1) { animation-delay: 0.1s; }
 .route-info-item:nth-child(2) { animation-delay: 0.2s; }
 .route-info-item:nth-child(3) { animation-delay: 0.3s; }
+
+.destination-info {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: rgba(139, 45, 37, 0.03);
+  border-radius: 12px;
+  animation: fadeIn 0.5s ease-out;
+  animation-delay: 0.4s;
+  animation-fill-mode: both;
+}
+
+.destination-title {
+  font-size: 1.8rem;
+  color: var(--main-red);
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.destination-name {
+  font-size: 2.2rem;
+  color: var(--main-text-dark);
+  font-weight: 500;
+}
 
 .start-btn {
   padding: 2.5rem;
