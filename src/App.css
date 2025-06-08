@@ -916,3 +916,28 @@ body, .app-wrapper, .app-container {
   width: 2rem;
   text-align: center;
 }
+
+.tmap-search-btn {
+  margin-top: 1rem;
+  padding: 0.8rem 1.5rem;
+  background: var(--main-red);
+  color: var(--main-text-light);
+  border: none;
+  border-radius: 8px;
+  font-size: 1.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+.tmap-search-btn:hover {
+  background: var(--main-text-light);
+  color: var(--main-red);
+  border: 1px solid var(--main-red);
+}
+
+.tmap-search-btn i {
+  font-size: 1.4rem;
+}

@@ -551,8 +551,8 @@ function App() {
           })
           .map(poi => ({
             name: poi.name,
-            address: poi.newAddress || poi.address || '주소 정보 없음',
-            tel: poi.telNo || '전화번호 정보 없음'
+            tel: poi.telNo || '전화번호 정보 없음',
+            id: poi.id
           }));
         
         setRestaurants(filteredRestaurants);
@@ -566,6 +566,12 @@ function App() {
     } finally {
       setIsLoadingRestaurants(false);
     }
+  };
+
+  // 티맵 검색 함수 추가
+  const openTmapSearch = (restaurantName) => {
+    const url = `https://apis.openapi.sk.com/tmap/app/search?appKey=${TMAP_API_KEY}&searchKeyword=${encodeURIComponent(restaurantName)}`;
+    window.open(url, '_blank');
   };
 
   // 렌더링 부분
@@ -882,8 +888,13 @@ function App() {
                     <div key={index} className="restaurant-item">
                       <h3 className="restaurant-name">{restaurant.name}</h3>
                       <div className="restaurant-info">
-                        <p><i className="fas fa-map-marker-alt"></i> {restaurant.address}</p>
                         {restaurant.tel && <p><i className="fas fa-phone"></i> {restaurant.tel}</p>}
+                        <button 
+                          className="tmap-search-btn"
+                          onClick={() => openTmapSearch(restaurant.name)}
+                        >
+                          <i className="fas fa-search"></i> 자세히 보기
+                        </button>
                       </div>
                     </div>
                   ))}
