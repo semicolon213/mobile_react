@@ -433,6 +433,7 @@ body, .app-wrapper, .app-container {
   flex: 1;
   overflow-y: auto;
   background: var(--popup-bg);
+  border-radius: 0 0 1.2rem 1.2rem;
 }
 
 .settings-grid {
