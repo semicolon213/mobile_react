@@ -523,7 +523,19 @@ function App() {
     window.open(url, '_blank');
   }, [selectedLocation]);
 
-  // 음식점 찾기 함수 추가
+  // 티맵 검색 함수 수정
+  const openTmapSearch = (restaurantName) => {
+    // 현재 위치의 좌표 가져오기
+    const position = window._randomTravelMarkerB.getPosition();
+    const lat = position.lat();
+    const lng = position.lng();
+    
+    // 티맵 웹 검색 URL 생성
+    const url = `https://apis.openapi.sk.com/tmap/app/search?appKey=${TMAP_API_KEY}&searchKeyword=${encodeURIComponent(restaurantName)}&centerLon=${lng}&centerLat=${lat}&radius=1`;
+    window.open(url, '_blank');
+  };
+
+  // 음식점 검색 함수 수정
   const openNearbyRestaurants = async () => {
     if (!window._randomTravelMarkerB) {
       alert("먼저 랜덤 여행지를 생성해주세요.");
@@ -536,7 +548,8 @@ function App() {
     const lng = position.lng();
     
     try {
-      const response = await fetch(`https://apis.openapi.sk.com/tmap/pois?version=1&searchKeyword=음식점&centerLon=${lng}&centerLat=${lat}&radius=1&appKey=${TMAP_API_KEY}`);
+      // 검색 반경을 500m로 줄이고, 카테고리를 음식점으로 명확히 지정
+      const response = await fetch(`https://apis.openapi.sk.com/tmap/pois?version=1&searchKeyword=음식점&centerLon=${lng}&centerLat=${lat}&radius=0.5&appKey=${TMAP_API_KEY}&categories=음식점`);
       const data = await response.json();
       
       if (data.searchPoiInfo && data.searchPoiInfo.pois) {
@@ -566,12 +579,6 @@ function App() {
     } finally {
       setIsLoadingRestaurants(false);
     }
-  };
-
-  // 티맵 검색 함수 추가
-  const openTmapSearch = (restaurantName) => {
-    const url = `https://apis.openapi.sk.com/tmap/app/search?appKey=${TMAP_API_KEY}&searchKeyword=${encodeURIComponent(restaurantName)}`;
-    window.open(url, '_blank');
   };
 
   // 렌더링 부분

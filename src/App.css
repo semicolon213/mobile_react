@@ -292,7 +292,7 @@ body, .app-wrapper, .app-container {
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  transform: scale(1.5, 1.6);
+  transform: scale(1.5, 1.55);
   transform-origin: center center;
 }
 
