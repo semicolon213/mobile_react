@@ -586,17 +586,17 @@ function App() {
       
       if (data && data.poiDetailInfo) {
         // 상세 정보가 있으면 해당 위치로 티맵 앱 열기
-        const url = `https://apis.openapi.sk.com/tmap/app/search?appKey=${TMAP_API_KEY}&searchKeyword=${encodeURIComponent(restaurant.name)}&lat=${restaurant.lat}&lon=${restaurant.lng}`;
+        const url = `https://apis.openapi.sk.com/tmap/app/routes?appKey=${TMAP_API_KEY}&goalname=${encodeURIComponent(restaurant.name)}&goalx=${restaurant.lng}&goaly=${restaurant.lat}`;
         window.open(url, '_blank');
       } else {
         // 상세 정보가 없으면 일반 검색으로 대체
-        const url = `https://apis.openapi.sk.com/tmap/app/search?appKey=${TMAP_API_KEY}&searchKeyword=${encodeURIComponent(restaurant.name)}`;
+        const url = `https://apis.openapi.sk.com/tmap/app/routes?appKey=${TMAP_API_KEY}&goalname=${encodeURIComponent(restaurant.name)}`;
         window.open(url, '_blank');
       }
     } catch (error) {
       console.error('티맵 검색 에러:', error);
       // 에러 발생 시 일반 검색으로 대체
-      const url = `https://apis.openapi.sk.com/tmap/app/search?appKey=${TMAP_API_KEY}&searchKeyword=${encodeURIComponent(restaurant.name)}`;
+      const url = `https://apis.openapi.sk.com/tmap/app/routes?appKey=${TMAP_API_KEY}&goalname=${encodeURIComponent(restaurant.name)}`;
       window.open(url, '_blank');
     }
   };
