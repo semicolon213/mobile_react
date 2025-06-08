@@ -851,3 +851,64 @@ body, .app-wrapper, .app-container {
 .current-location-btn:hover i {
   color: var(--main-text-light);
 }
+
+.loading-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  text-align: center;
+  color: var(--main-red);
+}
+
+.loading-message i {
+  font-size: 3rem;
+}
+
+.loading-message p {
+  font-size: 1.4rem;
+}
+
+.restaurant-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+.restaurant-item {
+  background: rgba(139, 45, 37, 0.03);
+  border-radius: 12px;
+  padding: 1.5rem;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.restaurant-name {
+  font-size: 2rem;
+  color: var(--main-red);
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.restaurant-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.restaurant-info p {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.4rem;
+  color: var(--main-text-dark);
+}
+
+.restaurant-info i {
+  color: var(--main-red);
+  font-size: 1.6rem;
+  width: 2rem;
+  text-align: center;
+}

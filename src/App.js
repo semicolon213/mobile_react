@@ -19,6 +19,9 @@ function App() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [hasPreviousTravel, setHasPreviousTravel] = useState(false);  // 이전 여행지 생성 여부 추적
+  const [isRestaurantOpen, setIsRestaurantOpen] = useState(false);
+  const [restaurants, setRestaurants] = useState([]);
+  const [isLoadingRestaurants, setIsLoadingRestaurants] = useState(false);
 
   // 지도, 마커, 원, 폴리곤 등 지도 객체를 저장할 ref 선언
   const mapRef = useRef(null);
@@ -527,15 +530,33 @@ function App() {
       return;
     }
 
+    setIsLoadingRestaurants(true);
     const position = window._randomTravelMarkerB.getPosition();
     const lat = position.lat();
     const lng = position.lng();
     
-    // 티맵 음식점 검색 URL 생성
-    const tmapUrl = `https://apis.openapi.sk.com/tmap/pois?version=1&searchKeyword=음식점&centerLon=${lng}&centerLat=${lat}&radius=1&appKey=${TMAP_API_KEY}`;
-    
-    // 새 창에서 티맵 열기
-    window.open(tmapUrl, '_blank');
+    try {
+      const response = await fetch(`https://apis.openapi.sk.com/tmap/pois?version=1&searchKeyword=음식점&centerLon=${lng}&centerLat=${lat}&radius=1&appKey=${TMAP_API_KEY}`);
+      const data = await response.json();
+      
+      if (data.searchPoiInfo && data.searchPoiInfo.pois) {
+        setRestaurants(data.searchPoiInfo.pois.poi.map(poi => ({
+          name: poi.name,
+          address: poi.address,
+          tel: poi.telNo,
+          category: poi.categoryName,
+          distance: poi.distance
+        })));
+        setIsRestaurantOpen(true);
+      } else {
+        alert('주변 음식점을 찾을 수 없습니다.');
+      }
+    } catch (error) {
+      console.error('음식점 검색 에러:', error);
+      alert('음식점 검색에 실패했습니다.');
+    } finally {
+      setIsLoadingRestaurants(false);
+    }
   };
 
   // 렌더링 부분
@@ -817,6 +838,53 @@ function App() {
             </div>
           </div>
       </div>
+      )}
+
+      {/* 음식점 정보 팝업 */}
+      {isRestaurantOpen && (
+        <div 
+          className="detail-popup-overlay"
+          onClick={(e) => {
+            if (e.target.className === 'detail-popup-overlay') {
+              setIsRestaurantOpen(false);
+            }
+          }}
+        >
+          <div className="detail-popup">
+            <div className="detail-popup-header">
+              <h2>주변 음식점</h2>
+              <button
+                className="close-btn"
+                onClick={() => setIsRestaurantOpen(false)}
+                title="닫기"
+              >
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <div className="detail-popup-content">
+              {isLoadingRestaurants ? (
+                <div className="loading-message">
+                  <i className="fas fa-spinner fa-spin"></i>
+                  <p>음식점 정보를 불러오는 중...</p>
+                </div>
+              ) : (
+                <div className="restaurant-list">
+                  {restaurants.map((restaurant, index) => (
+                    <div key={index} className="restaurant-item">
+                      <h3 className="restaurant-name">{restaurant.name}</h3>
+                      <div className="restaurant-info">
+                        <p><i className="fas fa-map-marker-alt"></i> {restaurant.address}</p>
+                        {restaurant.tel && <p><i className="fas fa-phone"></i> {restaurant.tel}</p>}
+                        <p><i className="fas fa-utensils"></i> {restaurant.category}</p>
+                        <p><i className="fas fa-walking"></i> {restaurant.distance}m</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
