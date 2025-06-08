@@ -262,7 +262,7 @@ body, .app-wrapper, .app-container {
 
 .route-info-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
   width: 100%;
 }
@@ -339,20 +339,6 @@ body, .app-wrapper, .app-container {
 }
 
 .route-info-item:nth-child(3) span {
-  font-size: 2rem;
-  font-weight: 600;
-  color: var(--main-red);
-}
-
-.route-info-item:nth-child(4) {
-  background: var(--popup-bg);
-}
-
-.route-info-item:nth-child(4) i {
-  font-size: 3.2rem;
-}
-
-.route-info-item:nth-child(4) span {
   font-size: 2rem;
   font-weight: 600;
   color: var(--main-red);
