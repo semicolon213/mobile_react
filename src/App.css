@@ -292,7 +292,7 @@ body, .app-wrapper, .app-container {
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  transform: scale(1.5, 1.4);
+  transform: scale(1.5, 1.6);
   transform-origin: center center;
 }
 
@@ -567,6 +567,7 @@ body, .app-wrapper, .app-container {
   padding: 1.5rem;
   flex: 1;
   overflow-y: auto;
+  max-height: 60vh;
 }
 
 .detail-grid {
@@ -876,6 +877,8 @@ body, .app-wrapper, .app-container {
   flex-direction: column;
   gap: 1.5rem;
   padding: 1rem;
+  max-height: 50vh;
+  overflow-y: auto;
 }
 
 .restaurant-item {
@@ -883,6 +886,7 @@ body, .app-wrapper, .app-container {
   border-radius: 12px;
   padding: 1.5rem;
   animation: fadeIn 0.5s ease-out;
+  flex-shrink: 0;
 }
 
 .restaurant-name {

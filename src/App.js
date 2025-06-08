@@ -542,7 +542,13 @@ function App() {
       if (data.searchPoiInfo && data.searchPoiInfo.pois) {
         // 주차장을 제외하고 음식점만 필터링
         const filteredRestaurants = data.searchPoiInfo.pois.poi
-          .filter(poi => !poi.categoryName.includes('주차장'))
+          .filter(poi => {
+            const category = poi.categoryName || '';
+            return !category.includes('주차장') && 
+                   !category.includes('주차') && 
+                   !poi.name.includes('주차장') && 
+                   !poi.name.includes('주차');
+          })
           .map(poi => ({
             name: poi.name,
             address: poi.address,
