@@ -523,19 +523,7 @@ function App() {
     window.open(url, '_blank');
   }, [selectedLocation]);
 
-  // 티맵 검색 함수 수정
-  const openTmapSearch = (restaurantName) => {
-    // 현재 위치의 좌표 가져오기
-    const position = window._randomTravelMarkerB.getPosition();
-    const lat = position.lat();
-    const lng = position.lng();
-    
-    // 티맵 웹 검색 URL 생성
-    const url = `https://apis.openapi.sk.com/tmap/app/search?appKey=${TMAP_API_KEY}&searchKeyword=${encodeURIComponent(restaurantName)}&centerLon=${lng}&centerLat=${lat}&radius=1`;
-    window.open(url, '_blank');
-  };
-
-  // 음식점 검색 함수 수정
+  // 음식점 찾기 함수 추가
   const openNearbyRestaurants = async () => {
     if (!window._randomTravelMarkerB) {
       alert("먼저 랜덤 여행지를 생성해주세요.");
@@ -548,8 +536,7 @@ function App() {
     const lng = position.lng();
     
     try {
-      // 검색 반경을 500m로 줄이고, 카테고리를 음식점으로 명확히 지정
-      const response = await fetch(`https://apis.openapi.sk.com/tmap/pois?version=1&searchKeyword=음식점&centerLon=${lng}&centerLat=${lat}&radius=0.5&appKey=${TMAP_API_KEY}&categories=음식점`);
+      const response = await fetch(`https://apis.openapi.sk.com/tmap/pois?version=1&searchKeyword=음식점&centerLon=${lng}&centerLat=${lat}&radius=1&appKey=${TMAP_API_KEY}`);
       const data = await response.json();
       
       if (data.searchPoiInfo && data.searchPoiInfo.pois) {
@@ -565,7 +552,9 @@ function App() {
           .map(poi => ({
             name: poi.name,
             tel: poi.telNo || '전화번호 정보 없음',
-            id: poi.id
+            id: poi.id,
+            lat: poi.frontLat,
+            lng: poi.frontLon
           }));
         
         setRestaurants(filteredRestaurants);
@@ -578,6 +567,37 @@ function App() {
       alert('음식점 검색에 실패했습니다.');
     } finally {
       setIsLoadingRestaurants(false);
+    }
+  };
+
+  // 티맵 상세 검색 함수 수정
+  const openTmapSearch = async (restaurant) => {
+    try {
+      // 먼저 POI ID로 상세 정보 조회
+      const response = await fetch(`https://apis.openapi.sk.com/tmap/pois/${restaurant.id}?version=1&findOption=id&resCoordType=WGS84GEO`, {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+          'appKey': TMAP_API_KEY
+        }
+      });
+      
+      const data = await response.json();
+      
+      if (data && data.poiDetailInfo) {
+        // 상세 정보가 있으면 해당 위치로 티맵 앱 열기
+        const url = `https://apis.openapi.sk.com/tmap/app/search?appKey=${TMAP_API_KEY}&searchKeyword=${encodeURIComponent(restaurant.name)}&lat=${restaurant.lat}&lon=${restaurant.lng}`;
+        window.open(url, '_blank');
+      } else {
+        // 상세 정보가 없으면 일반 검색으로 대체
+        const url = `https://apis.openapi.sk.com/tmap/app/search?appKey=${TMAP_API_KEY}&searchKeyword=${encodeURIComponent(restaurant.name)}`;
+        window.open(url, '_blank');
+      }
+    } catch (error) {
+      console.error('티맵 검색 에러:', error);
+      // 에러 발생 시 일반 검색으로 대체
+      const url = `https://apis.openapi.sk.com/tmap/app/search?appKey=${TMAP_API_KEY}&searchKeyword=${encodeURIComponent(restaurant.name)}`;
+      window.open(url, '_blank');
     }
   };
 
@@ -898,7 +918,7 @@ function App() {
                         {restaurant.tel && <p><i className="fas fa-phone"></i> {restaurant.tel}</p>}
                         <button 
                           className="tmap-search-btn"
-                          onClick={() => openTmapSearch(restaurant.name)}
+                          onClick={() => openTmapSearch(restaurant)}
                         >
                           <i className="fas fa-search"></i> 자세히 보기
                         </button>
