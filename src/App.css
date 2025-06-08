@@ -851,3 +851,97 @@ body, .app-wrapper, .app-container {
 .current-location-btn:hover i {
   color: var(--main-text-light);
 }
+
+.restaurant-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(26, 24, 23, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.restaurant-popup {
+  background: var(--main-bg);
+  color: var(--main-text-dark);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  transform: scale(1.5, 1.5);
+  transform-origin: center center;
+}
+
+.restaurant-popup-header {
+  padding: 1.8rem 2.2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(139, 45, 37, 0.1);
+}
+
+.restaurant-popup-header h2 {
+  margin: 0;
+  font-size: 2rem;
+  color: var(--main-red);
+  font-weight: 600;
+}
+
+.restaurant-popup-content {
+  padding: 2rem;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.restaurant-item {
+  background: rgba(139, 45, 37, 0.03);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(139, 45, 37, 0.1);
+}
+
+.restaurant-item h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.8rem;
+  color: var(--main-red);
+}
+
+.restaurant-item p {
+  margin: 0.5rem 0;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.restaurant-item i {
+  color: var(--main-red);
+  width: 1.5rem;
+  text-align: center;
+}
+
+.restaurant-link {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.8rem 1.5rem;
+  background: var(--main-red);
+  color: var(--main-text-light);
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 1.4rem;
+  transition: all 0.2s ease;
+}
+
+.restaurant-link:hover {
+  background: var(--main-text-light);
+  color: var(--main-red);
+}

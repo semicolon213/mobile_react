@@ -19,6 +19,8 @@ function App() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [hasPreviousTravel, setHasPreviousTravel] = useState(false);  // 이전 여행지 생성 여부 추적
+  const [restaurantInfo, setRestaurantInfo] = useState([]);
+  const [showRestaurantInfo, setShowRestaurantInfo] = useState(false);
 
   // 지도, 마커, 원, 폴리곤 등 지도 객체를 저장할 ref 선언
   const mapRef = useRef(null);
@@ -520,72 +522,43 @@ function App() {
     window.open(url, '_blank');
   }, [selectedLocation]);
 
-  // 음식점 찾기 함수 수정
-  const openNearbyRestaurants = useCallback(async () => {
-    if (!selectedLocation) {
-      alert('먼저 여행지를 선택해주세요.');
+  // 음식점 찾기 함수 추가
+  const handleRestaurantSearch = async () => {
+    if (!window._randomTravelMarkerB) {
+      alert('먼저 랜덤 여행지를 생성해주세요.');
       return;
     }
 
+    const position = window._randomTravelMarkerB.getPosition();
+    const lat = position.lat();
+    const lng = position.lng();
+
     try {
-      const options = {
-        method: 'GET',
+      const response = await fetch(`https://dapi.kakao.com/v2/local/search/keyword.json?query=음식점&x=${lng}&y=${lat}&radius=1000`, {
         headers: {
-          accept: 'application/json',
-          appKey: TMAP_API_KEY
+          'Authorization': `KakaoAK ${process.env.REACT_APP_KAKAO_REST_API_KEY}`
         }
-      };
+      });
 
-      const response = await fetch(
-        `https://apis.openapi.sk.com/tmap/pois/search/around?version=1&centerLon=${selectedLocation.lng}&centerLat=${selectedLocation.lat}&categories=음식점&page=1&count=20&radius=1&reqCoordType=WGS84GEO&resCoordType=WGS84GEO&multiPoint=N`,
-        options
-      );
-      
       const data = await response.json();
-      console.log('주변 음식점 검색 결과:', data);
+      if (data.documents && data.documents.length > 0) {
+        const restaurants = data.documents.map(place => ({
+          name: place.place_name,
+          address: place.address_name,
+          distance: place.distance,
+          category: place.category_name,
+          url: place.place_url
+        }));
 
-      if (data && data.searchPoiInfo && data.searchPoiInfo.pois && data.searchPoiInfo.pois.poi) {
-        const restaurants = data.searchPoiInfo.pois.poi;
-        if (restaurants.length > 0) {
-          // 검색된 음식점 중 랜덤으로 하나 선택
-          const randomRestaurant = restaurants[Math.floor(Math.random() * restaurants.length)];
-          
-          // 선택된 음식점의 위치로 Tmap 앱 열기
-          const url = `https://apis.openapi.sk.com/tmap/app/nearby?appKey=${TMAP_API_KEY}&host=nearby&lat=${randomRestaurant.frontLat}&lon=${randomRestaurant.frontLon}&category=음식점`;
-          window.open(url, '_blank');
-        } else {
-          alert('주변에 음식점을 찾을 수 없습니다.');
-        }
+        // 음식점 정보를 팝업으로 표시
+        setRestaurantInfo(restaurants);
+        setShowRestaurantInfo(true);
       } else {
-        alert('음식점 검색에 실패했습니다.');
+        alert('주변에 음식점을 찾을 수 없습니다.');
       }
     } catch (error) {
       console.error('음식점 검색 중 오류 발생:', error);
       alert('음식점 검색 중 오류가 발생했습니다.');
-    }
-  }, [selectedLocation]);
-
-  const searchNearbyPharmacies = async (centerLon, centerLat) => {
-    try {
-      const options = {
-        method: 'GET',
-        headers: {
-          accept: 'application/json',
-          appKey: 'e8wHh2tya84M88aReEpXCa5XTQf3xgo01aZG39k5'
-        }
-      };
-
-      const response = await fetch(
-        `https://apis.openapi.sk.com/tmap/pois/search/around?version=1&centerLon=${centerLon}&centerLat=${centerLat}&categories=편의점&page=1&count=20&radius=1&reqCoordType=WGS84GEO&resCoordType=WGS84GEO&multiPoint=N`,
-        options
-      );
-      
-      const data = await response.json();
-      console.log('주변 편의점 검색 결과:', data);
-      return data;
-    } catch (error) {
-      console.error('편의점 검색 중 오류 발생:', error);
-      return null;
     }
   };
 
@@ -635,7 +608,7 @@ function App() {
                   </button>
                     <button 
                       className="restaurant-btn"
-                      onClick={openNearbyRestaurants}
+                      onClick={handleRestaurantSearch}
                       title="주변 음식점 찾기"
                     >
                       <i className="fas fa-utensils"></i>
@@ -868,6 +841,32 @@ function App() {
             </div>
           </div>
       </div>
+      )}
+
+      {showRestaurantInfo && (
+        <div className="restaurant-popup-overlay">
+          <div className="restaurant-popup">
+            <div className="restaurant-popup-header">
+              <h2>주변 음식점</h2>
+              <button className="close-btn" onClick={() => setShowRestaurantInfo(false)}>
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <div className="restaurant-popup-content">
+              {restaurantInfo.map((restaurant, index) => (
+                <div key={index} className="restaurant-item">
+                  <h3>{restaurant.name}</h3>
+                  <p><i className="fas fa-map-marker-alt"></i> {restaurant.address}</p>
+                  <p><i className="fas fa-walking"></i> {Math.round(restaurant.distance)}m</p>
+                  <p><i className="fas fa-utensils"></i> {restaurant.category}</p>
+                  <a href={restaurant.url} target="_blank" rel="noopener noreferrer" className="restaurant-link">
+                    상세 정보 보기
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
