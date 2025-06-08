@@ -540,13 +540,16 @@ function App() {
       const data = await response.json();
       
       if (data.searchPoiInfo && data.searchPoiInfo.pois) {
-        setRestaurants(data.searchPoiInfo.pois.poi.map(poi => ({
-          name: poi.name,
-          address: poi.address,
-          tel: poi.telNo,
-          category: poi.categoryName,
-          distance: poi.distance
-        })));
+        // 주차장을 제외하고 음식점만 필터링
+        const filteredRestaurants = data.searchPoiInfo.pois.poi
+          .filter(poi => !poi.categoryName.includes('주차장'))
+          .map(poi => ({
+            name: poi.name,
+            address: poi.address,
+            tel: poi.telNo
+          }));
+        
+        setRestaurants(filteredRestaurants);
         setIsRestaurantOpen(true);
       } else {
         alert('주변 음식점을 찾을 수 없습니다.');
@@ -875,8 +878,6 @@ function App() {
                       <div className="restaurant-info">
                         <p><i className="fas fa-map-marker-alt"></i> {restaurant.address}</p>
                         {restaurant.tel && <p><i className="fas fa-phone"></i> {restaurant.tel}</p>}
-                        <p><i className="fas fa-utensils"></i> {restaurant.category}</p>
-                        <p><i className="fas fa-walking"></i> {restaurant.distance}m</p>
                       </div>
                     </div>
                   ))}
