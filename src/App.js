@@ -350,20 +350,27 @@ function App() {
       if (data.metaData && data.metaData.plan && data.metaData.plan.itineraries && data.metaData.plan.itineraries.length > 0) {
         const itinerary = data.metaData.plan.itineraries[0];
         
-        // 거리 계산 (미터를 킬로미터로 변환)
+        // 거리와 시간 계산
         if (itinerary.legs && itinerary.legs.length > 0) {
-          totalDistance = itinerary.legs.reduce((sum, leg) => sum + (leg.distance || 0), 0) / 1000;
-          totalTime = Math.round(itinerary.legs.reduce((sum, leg) => sum + (leg.duration || 0), 0) / 60);
-        } else {
-          totalDistance = (itinerary.distance || 0) / 1000;
-          totalTime = Math.round((itinerary.duration || 0) / 60);
+          totalDistance = itinerary.legs.reduce((sum, leg) => {
+            const distance = leg.distance || 0;
+            return sum + distance;
+          }, 0) / 1000; // 미터를 킬로미터로 변환
+
+          totalTime = Math.round(itinerary.legs.reduce((sum, leg) => {
+            const duration = leg.duration || 0;
+            return sum + duration;
+          }, 0) / 60); // 초를 분으로 변환
         }
-        
+
         // 요금 계산
-        totalFare = itinerary.fare ? itinerary.fare.regular.totalFare : 0;
+        if (itinerary.fare && itinerary.fare.regular) {
+          totalFare = itinerary.fare.regular.totalFare || 0;
+        }
 
         console.log('계산된 거리:', totalDistance);
         console.log('계산된 시간:', totalTime);
+        console.log('계산된 요금:', totalFare);
 
         // 각 구간별로 다른 색상의 경로 표시
         if (itinerary.legs && itinerary.legs.length > 0) {
@@ -418,6 +425,7 @@ function App() {
           alert('경로 정보를 가져오는데 실패했습니다.');
         }
       } else {
+        console.error('대중교통 경로 데이터 없음:', data);
         alert('대중교통 경로를 찾을 수 없습니다.');
       }
     } catch (error) {
