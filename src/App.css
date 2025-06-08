@@ -39,8 +39,8 @@ body, .app-wrapper, .app-container {
   justify-content: center;
   height: 8.75rem;
   border-radius: 1.2rem;
-  margin: 0 1rem;
-  width: calc(100% - 2rem);
+  margin: 0;
+  width: 100%;
 }
 
 .header-inner {
@@ -117,9 +117,9 @@ body, .app-wrapper, .app-container {
   height: 0;
   position: relative;
   margin-bottom: 0.5rem;
-  width: calc(100% - 2rem);
-  margin-left: 1rem;
-  margin-right: 1rem;
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 .travel-info, .start-btn {
@@ -132,9 +132,9 @@ body, .app-wrapper, .app-container {
   padding: 0.5rem 1rem 1rem 1rem;
   color: var(--main-text-dark);
   margin-bottom: 1rem;
-  width: calc(100% - 2rem);
-  margin-left: 1rem;
-  margin-right: 1rem;
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 .travel-info-header {
@@ -333,9 +333,9 @@ body, .app-wrapper, .app-container {
   justify-content: center;
   gap: 2rem;
   margin-bottom: 2.5rem;
-  width: calc(100% - 2rem);
-  margin-left: 1rem;
-  margin-right: 1rem;
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 .start-btn:hover {
