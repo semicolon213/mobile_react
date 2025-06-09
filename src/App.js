@@ -22,6 +22,7 @@ function App() {
   const [isRestaurantOpen, setIsRestaurantOpen] = useState(false);
   const [restaurants, setRestaurants] = useState([]);
   const [isLoadingRestaurants, setIsLoadingRestaurants] = useState(false);
+  const [locationPermission, setLocationPermission] = useState(null); // 위치 권한 상태 추가
 
   // 지도, 마커, 원, 폴리곤 등 지도 객체를 저장할 ref 선언
   const mapRef = useRef(null);
@@ -97,6 +98,29 @@ function App() {
       alert('이 브라우저는 위치를 지원하지 않습니다.');
     }
   }, [])
+
+  // 위치 권한 요청 함수
+  const requestLocationPermission = useCallback(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        () => {
+          setLocationPermission('granted');
+          getCurrentLocation();
+        },
+        (error) => {
+          console.error('위치 권한 에러:', error);
+          setLocationPermission('denied');
+        }
+      );
+    } else {
+      setLocationPermission('not-supported');
+    }
+  }, [getCurrentLocation]);
+
+  // 컴포넌트 마운트 시 위치 권한 요청
+  useEffect(() => {
+    requestLocationPermission();
+  }, [requestLocationPermission]);
 
   // 컴포넌트 마운트 시 현재 위치 가져오고 지도 생성
   useEffect(() => {
@@ -364,52 +388,52 @@ function App() {
 
         // 각 구간별로 다른 색상의 경로 표시
         if (itinerary.legs && itinerary.legs.length > 0) {
-          itinerary.legs.forEach((leg, index) => {
-            if (leg.mode === 'WALK' || leg.mode === 'BUS' || leg.mode === 'SUBWAY') {
-              const legPath = leg.passShape && leg.passShape.linestring
-                ? leg.passShape.linestring.split(' ').map(pair => {
-                    const [lng, lat] = pair.split(',').map(Number);
-                    return new window.Tmapv2.LatLng(lat, lng);
-                  })
-                : [];
+        itinerary.legs.forEach((leg, index) => {
+          if (leg.mode === 'WALK' || leg.mode === 'BUS' || leg.mode === 'SUBWAY') {
+            const legPath = leg.passShape && leg.passShape.linestring
+              ? leg.passShape.linestring.split(' ').map(pair => {
+                  const [lng, lat] = pair.split(',').map(Number);
+                  return new window.Tmapv2.LatLng(lat, lng);
+                })
+              : [];
 
-              if (legPath.length > 1) {
-                // 이동 수단별 색상 설정
-                let strokeColor;
-                switch (leg.mode) {
-                  case 'WALK':
-                    strokeColor = '#666666'; // 도보: 회색
-                    break;
-                  case 'BUS':
-                    strokeColor = '#3399ff'; // 버스: 파란색
-                    break;
-                  case 'SUBWAY':
-                    strokeColor = '#ff6600'; // 지하철: 주황색
-                    break;
-                  default:
-                    strokeColor = '#666666';
-                }
+            if (legPath.length > 1) {
+              // 이동 수단별 색상 설정
+              let strokeColor;
+              switch (leg.mode) {
+                case 'WALK':
+                  strokeColor = '#666666'; // 도보: 회색
+                  break;
+                case 'BUS':
+                  strokeColor = '#3399ff'; // 버스: 파란색
+                  break;
+                case 'SUBWAY':
+                  strokeColor = '#ff6600'; // 지하철: 주황색
+                  break;
+                default:
+                  strokeColor = '#666666';
+              }
 
-                const polyline = new window.Tmapv2.Polyline({
-                  path: legPath,
-                  strokeColor: strokeColor,
-                  strokeWeight: 6,
+              const polyline = new window.Tmapv2.Polyline({
+                path: legPath,
+                strokeColor: strokeColor,
+                strokeWeight: 6,
                   map: mapInstanceRef.current,
                   className: 'path-animation'
-                });
-                setRouteLine(polyline);
-              }
+              });
+              setRouteLine(polyline);
             }
-          });
+          }
+        });
         }
 
         // 거리와 시간이 유효한 값인지 확인
         if (!isNaN(totalDistance) && !isNaN(totalTime)) {
-          setRouteInfo({
-            distance: totalDistance.toFixed(1),
+        setRouteInfo({
+          distance: totalDistance.toFixed(1),
             time: totalTime.toString(),
-            fare: totalFare
-          });
+          fare: totalFare
+        });
         } else {
           console.error('유효하지 않은 거리 또는 시간:', { totalDistance, totalTime });
           alert('경로 정보를 가져오는데 실패했습니다.');
@@ -592,321 +616,346 @@ function App() {
   // 렌더링 부분
   return (
     <div className="app-wrapper">
-      <div className="app-container">
-        <header className="app-header">
-          <div className="header-inner">
-            <h1 className="header-logo">GOSTOP</h1>
-          </div>
-          <button 
-            className="settings-btn"
-            onClick={() => setIsSettingsOpen(true)}
-            title="설정"
-          >
-            <i className="fas fa-cog"></i>
-          </button>
-        </header>
-
-        <main className="app-main">
-          {/* 지도 표시 */}
-          <div className="map-container">
-            <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
+      {locationPermission === null ? (
+        <div className="permission-overlay">
+          <div className="permission-popup">
+            <h2>위치 권한 필요</h2>
+            <p>GOSTOP 서비스를 이용하기 위해서는 위치 권한이 필요합니다.</p>
             <button 
-              className="current-location-btn"
-              onClick={getCurrentLocation}
-              title="현재 위치로 이동"
+              className="permission-btn"
+              onClick={requestLocationPermission}
             >
-              <i className="fas fa-location-crosshairs"></i>
+              위치 권한 허용하기
             </button>
           </div>
-
-          {/* 여행 정보 표시 */}
-          <div className="travel-info">
-            {routeInfo ? (
-              <div className="travel-info-section">
-                <div className="travel-info-header">
-                  <h3 className="section-title">여행 정보</h3>
-                  <div className="travel-info-buttons">
-                  <button 
-                    className="detail-btn"
-                    onClick={() => setIsDetailOpen(true)}
-                    title="상세 정보 보기"
-                  >
-                    <i className="fas fa-info-circle"></i>
-                  </button>
-                    <button 
-                      className="restaurant-btn"
-                      onClick={openNearbyRestaurants}
-                      title="주변 음식점 찾기"
-                    >
-                      <i className="fas fa-utensils"></i>
-                    </button>
-                    <button 
-                      className="nav-btn"
-                      onClick={openNavigation}
-                      title="티맵 네비게이션 열기"
-                    >
-                      <i className="fas fa-directions"></i>
-                    </button>
-                  </div>
-                </div>
-                <div className="route-info">
-                  <div className="route-info-item destination-info">
-                    <i className="fas fa-map-marker-alt"></i>
-                    <span>{selectedLocation.name}</span>
-                  </div>
-                  <div className="route-info-grid">
-                    <div className="route-info-item">
-                      <i className="fas fa-road"></i>
-                      <span>{routeInfo.distance}km</span>
-                    </div>
-                    <div className="route-info-item">
-                      <i className="fas fa-clock"></i>
-                      <span>{routeInfo.time}분</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="no-route-message">
-                <i className="fas fa-map-marked-alt"></i>
-                <p>랜덤 여행을 시작하면 여행 정보가 표시됩니다.</p>
-              </div>
-            )}
+        </div>
+      ) : locationPermission === 'denied' ? (
+        <div className="permission-overlay">
+          <div className="permission-popup">
+            <h2>위치 권한 거부됨</h2>
+            <p>위치 권한이 거부되어 서비스를 이용할 수 없습니다.</p>
+            <p>브라우저 설정에서 위치 권한을 허용해주세요.</p>
           </div>
-
-          {/* 랜덤 여행 버튼 */}
-          <button
-            className="start-btn"
-            onClick={handleRandomTravelWithSettings}
-          >
-            <i className="fas fa-random"></i>
-            랜덤 여행 시작하기
-          </button>
-        </main>
-      </div>
-
-      {/* 설정 팝업 */}
-      {isSettingsOpen && (
-        <div 
-          className="settings-popup-overlay"
-          onClick={(e) => {
-            if (e.target.className === 'settings-popup-overlay') {
-              saveSettings();
-            }
-          }}
-        >
-          <div className="settings-popup">
-            <div className="settings-popup-header">
-              <h2>설정</h2>
+        </div>
+      ) : (
+        <>
+          <div className="app-container">
+            <header className="app-header">
+              <div className="header-inner">
+                <h1 className="header-logo">GOSTOP</h1>
+              </div>
               <button 
-                className="close-btn"
-                onClick={saveSettings}
-                title="설정 저장"
+                className="settings-btn"
+                onClick={() => setIsSettingsOpen(true)}
+                title="설정"
               >
-                <i className="fas fa-times"></i>
+                <i className="fas fa-cog"></i>
               </button>
-            </div>
-            <div className="settings-popup-content">
-              <div className="settings-grid">
-          {/* 현재 위치 입력/버튼 */}
-          <section className="location-section">
-            <h3 className="section-title">현재 위치</h3>
-            <div className="location-input-wrapper">
-              <input
-                type="text"
-                placeholder="위치를 입력하세요"
-                className="location-input"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
-                    <button 
-                      className="location-btn" 
-                      onClick={getCurrentLocation}
-                      title="현재 위치 가져오기"
-                    >
-                      <i className="fas fa-location-crosshairs"></i>
-              </button>
-            </div>
-          </section>
+            </header>
 
-          {/* 이동수단 선택 */}
-          <section className="transport-section">
-                  <h3 className="section-title">이동 수단</h3>
-            <div className="transport-grid">
-              {[
-                      { icon: 'car', type: 'car', label: '자동차' },
-                      { icon: 'bus', type: 'public', label: '대중교통' },
-              ].map((item) => (
-                <button
-                        key={item.type}
-                        className={`transport-btn ${selectedTransports.includes(item.type)
-                    ? 'transport-btn-selected'
-                    : 'transport-btn-default'
-                    }`}
-                        onClick={() => toggleTransport(item.type)}
+            <main className="app-main">
+              {/* 지도 표시 */}
+              <div className="map-container">
+                <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
+                <button 
+                  className="current-location-btn"
+                  onClick={getCurrentLocation}
+                  title="현재 위치로 이동"
                 >
-                        <i className={`fas fa-${item.icon}`}></i>
-                        <span>{item.label}</span>
+                  <i className="fas fa-location-crosshairs"></i>
                 </button>
-              ))}
-            </div>
-          </section>
-
-          {/* 시간 설정 */}
-          <section className="time-section">
-                  <h3 className="section-title">여행 시간</h3>
-            <div className="time-range-container">
-              <div className="time-range-labels">
-                <span>20분</span>
-                <span className="current-time">
-                  {Math.floor(time / 60)}시간 {time % 60}분
-                </span>
-                <span>12시간</span>
               </div>
-              <input
-                type="range"
-                min="20"
-                max="720"
-                value={time}
-                onChange={(e) => setTime(parseInt(e.target.value))}
-                className="time-range-slider"
-                step="10"
-              />
-                  </div>
-                </section>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* 상세 정보 팝업 */}
-      {isDetailOpen && selectedLocation && (
-        <div 
-          className="detail-popup-overlay"
-          onClick={(e) => {
-            if (e.target.className === 'detail-popup-overlay') {
-              setIsDetailOpen(false);
-            }
-          }}
-        >
-          <div className="detail-popup">
-            <div className="detail-popup-header">
-              <h2>여행 상세 정보</h2>
-          <button
-                className="close-btn"
-                onClick={() => setIsDetailOpen(false)}
-                title="닫기"
-          >
-                <i className="fas fa-times"></i>
-          </button>
-            </div>
-            <div className="detail-popup-content">
-              <div className="detail-grid">
-                <div className="detail-section">
-                  <h3 className="detail-title">
-                    <i className="fas fa-map-marker-alt"></i>
-                    여행지 정보
-                  </h3>
-                  <div className="detail-info">
-                    <div className="detail-info-item">
-                      <i className="fas fa-map-marker-alt"></i>
-                      <span>{selectedLocation.name}</span>
-                    </div>
-                    <div className="detail-info-item">
-                      <i className="fas fa-location-arrow"></i>
-                      <span>위도: {selectedLocation.lat.toFixed(6)}</span>
-                    </div>
-                    <div className="detail-info-item">
-                      <i className="fas fa-location-arrow"></i>
-                      <span>경도: {selectedLocation.lng.toFixed(6)}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="detail-section">
-                  <h3 className="detail-title">
-                    <i className="fas fa-route"></i>
-                    이동 경로
-                  </h3>
-                  <div className="detail-info">
-                    <div className="detail-info-item">
-                      <i className="fas fa-road"></i>
-                      <span>총 거리: {routeInfo.distance}km</span>
-                    </div>
-                    <div className="detail-info-item">
-                      <i className="fas fa-clock"></i>
-                      <span>예상 소요 시간: {routeInfo.time}분</span>
-                    </div>
-                    {routeInfo.fare > 0 && (
-                      <div className="detail-info-item">
-                        <i className="fas fa-won-sign"></i>
-                        <span>예상 요금: {routeInfo.fare}원</span>
+              {/* 여행 정보 표시 */}
+              <div className="travel-info">
+                {routeInfo ? (
+                  <div className="travel-info-section">
+                    <div className="travel-info-header">
+                      <h3 className="section-title">여행 정보</h3>
+                      <div className="travel-info-buttons">
+                        <button 
+                          className="detail-btn"
+                          onClick={() => setIsDetailOpen(true)}
+                          title="상세 정보 보기"
+                        >
+                          <i className="fas fa-info-circle"></i>
+                        </button>
+                        <button 
+                          className="restaurant-btn"
+                          onClick={openNearbyRestaurants}
+                          title="주변 음식점 찾기"
+                        >
+                          <i className="fas fa-utensils"></i>
+                        </button>
+                        <button 
+                          className="nav-btn"
+                          onClick={openNavigation}
+                          title="티맵 네비게이션 열기"
+                        >
+                          <i className="fas fa-directions"></i>
+                        </button>
                       </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="detail-section">
-                  <h3 className="detail-title">
-                    <i className="fas fa-car"></i>
-                    이동 수단
-                  </h3>
-                  <div className="detail-info">
-                    <div className="detail-info-item">
-                      <i className={selectedTransports.includes('car') ? 'fas fa-car' : 'fas fa-bus'}></i>
-                      <span>{selectedTransports.includes('car') ? '자동차' : '대중교통'}</span>
+                    </div>
+                    <div className="route-info">
+                      <div className="route-info-item destination-info">
+                        <i className="fas fa-map-marker-alt"></i>
+                        <span>{selectedLocation.name}</span>
+                      </div>
+                      <div className="route-info-grid">
+                        <div className="route-info-item">
+                          <i className="fas fa-road"></i>
+                          <span>{routeInfo.distance}km</span>
+                        </div>
+                        <div className="route-info-item">
+                          <i className="fas fa-clock"></i>
+                          <span>{routeInfo.time}분</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="no-route-message">
+                    <i className="fas fa-map-marked-alt"></i>
+                    <p>랜덤 여행을 시작하면 여행 정보가 표시됩니다.</p>
+                  </div>
+                )}
               </div>
-            </div>
-          </div>
-      </div>
-      )}
 
-      {/* 음식점 정보 팝업 */}
-      {isRestaurantOpen && (
-        <div 
-          className="detail-popup-overlay"
-          onClick={(e) => {
-            if (e.target.className === 'detail-popup-overlay') {
-              setIsRestaurantOpen(false);
-            }
-          }}
-        >
-          <div className="detail-popup">
-            <div className="detail-popup-header">
-              <h2>주변 음식점</h2>
+              {/* 랜덤 여행 버튼 */}
               <button
-                className="close-btn"
-                onClick={() => setIsRestaurantOpen(false)}
-                title="닫기"
+                className="start-btn"
+                onClick={handleRandomTravelWithSettings}
               >
-                <i className="fas fa-times"></i>
+                <i className="fas fa-random"></i>
+                랜덤 여행 시작하기
               </button>
-            </div>
-            <div className="detail-popup-content">
-              {isLoadingRestaurants ? (
-                <div className="loading-message">
-                  <i className="fas fa-spinner fa-spin"></i>
-                  <p>음식점 정보를 불러오는 중...</p>
+            </main>
+          </div>
+
+          {/* 설정 팝업 */}
+          {isSettingsOpen && (
+            <div 
+              className="settings-popup-overlay"
+              onClick={(e) => {
+                if (e.target.className === 'settings-popup-overlay') {
+                  saveSettings();
+                }
+              }}
+            >
+              <div className="settings-popup">
+                <div className="settings-popup-header">
+                  <h2>설정</h2>
+                  <button 
+                    className="close-btn"
+                    onClick={saveSettings}
+                    title="설정 저장"
+                  >
+                    <i className="fas fa-times"></i>
+                  </button>
                 </div>
-              ) : (
-                <div className="restaurant-list">
-                  {restaurants.map((restaurant, index) => (
-                    <div key={index} className="restaurant-item">
-                      <h3 className="restaurant-name">{restaurant.name}</h3>
-                      <div className="restaurant-info">
-                        {restaurant.tel && <p><i className="fas fa-phone"></i> {restaurant.tel}</p>}
+                <div className="settings-popup-content">
+                  <div className="settings-grid">
+                    {/* 현재 위치 입력/버튼 */}
+                    <section className="location-section">
+                      <h3 className="section-title">현재 위치</h3>
+                      <div className="location-input-wrapper">
+                        <input
+                          type="text"
+                          placeholder="위치를 입력하세요"
+                          className="location-input"
+                          value={address}
+                          onChange={(e) => setAddress(e.target.value)}
+                        />
+                        <button 
+                          className="location-btn" 
+                          onClick={getCurrentLocation}
+                          title="현재 위치 가져오기"
+                        >
+                          <i className="fas fa-location-crosshairs"></i>
+                        </button>
+                      </div>
+                    </section>
+
+                    {/* 이동수단 선택 */}
+                    <section className="transport-section">
+                      <h3 className="section-title">이동 수단</h3>
+                      <div className="transport-grid">
+                        {[
+                          { icon: 'car', type: 'car', label: '자동차' },
+                          { icon: 'bus', type: 'public', label: '대중교통' },
+                        ].map((item) => (
+                          <button
+                            key={item.type}
+                            className={`transport-btn ${selectedTransports.includes(item.type)
+                              ? 'transport-btn-selected'
+                              : 'transport-btn-default'
+                            }`}
+                            onClick={() => toggleTransport(item.type)}
+                          >
+                            <i className={`fas fa-${item.icon}`}></i>
+                            <span>{item.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </section>
+
+                    {/* 시간 설정 */}
+                    <section className="time-section">
+                      <h3 className="section-title">여행 시간</h3>
+                      <div className="time-range-container">
+                        <div className="time-range-labels">
+                          <span>20분</span>
+                          <span className="current-time">
+                            {Math.floor(time / 60)}시간 {time % 60}분
+                          </span>
+                          <span>12시간</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="20"
+                          max="720"
+                          value={time}
+                          onChange={(e) => setTime(parseInt(e.target.value))}
+                          className="time-range-slider"
+                          step="10"
+                        />
+                      </div>
+                    </section>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 상세 정보 팝업 */}
+          {isDetailOpen && selectedLocation && (
+            <div 
+              className="detail-popup-overlay"
+              onClick={(e) => {
+                if (e.target.className === 'detail-popup-overlay') {
+                  setIsDetailOpen(false);
+                }
+              }}
+            >
+              <div className="detail-popup">
+                <div className="detail-popup-header">
+                  <h2>여행 상세 정보</h2>
+                  <button
+                    className="close-btn"
+                    onClick={() => setIsDetailOpen(false)}
+                    title="닫기"
+                  >
+                    <i className="fas fa-times"></i>
+                  </button>
+                </div>
+                <div className="detail-popup-content">
+                  <div className="detail-grid">
+                    <div className="detail-section">
+                      <h3 className="detail-title">
+                        <i className="fas fa-map-marker-alt"></i>
+                        여행지 정보
+                      </h3>
+                      <div className="detail-info">
+                        <div className="detail-info-item">
+                          <i className="fas fa-map-marker-alt"></i>
+                          <span>{selectedLocation.name}</span>
+                        </div>
+                        <div className="detail-info-item">
+                          <i className="fas fa-location-arrow"></i>
+                          <span>위도: {selectedLocation.lat.toFixed(6)}</span>
+                        </div>
+                        <div className="detail-info-item">
+                          <i className="fas fa-location-arrow"></i>
+                          <span>경도: {selectedLocation.lng.toFixed(6)}</span>
+                        </div>
                       </div>
                     </div>
-                  ))}
+
+                    <div className="detail-section">
+                      <h3 className="detail-title">
+                        <i className="fas fa-route"></i>
+                        이동 경로
+                      </h3>
+                      <div className="detail-info">
+                        <div className="detail-info-item">
+                          <i className="fas fa-road"></i>
+                          <span>총 거리: {routeInfo.distance}km</span>
+                        </div>
+                        <div className="detail-info-item">
+                          <i className="fas fa-clock"></i>
+                          <span>예상 소요 시간: {routeInfo.time}분</span>
+                        </div>
+                        {routeInfo.fare > 0 && (
+                          <div className="detail-info-item">
+                            <i className="fas fa-won-sign"></i>
+                            <span>예상 요금: {routeInfo.fare}원</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="detail-section">
+                      <h3 className="detail-title">
+                        <i className="fas fa-car"></i>
+                        이동 수단
+                      </h3>
+                      <div className="detail-info">
+                        <div className="detail-info-item">
+                          <i className={selectedTransports.includes('car') ? 'fas fa-car' : 'fas fa-bus'}></i>
+                          <span>{selectedTransports.includes('car') ? '자동차' : '대중교통'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
-          </div>
-        </div>
+          )}
+
+          {/* 음식점 정보 팝업 */}
+          {isRestaurantOpen && (
+            <div 
+              className="detail-popup-overlay"
+              onClick={(e) => {
+                if (e.target.className === 'detail-popup-overlay') {
+                  setIsRestaurantOpen(false);
+                }
+              }}
+            >
+              <div className="detail-popup">
+                <div className="detail-popup-header">
+                  <h2>주변 음식점</h2>
+                  <button
+                    className="close-btn"
+                    onClick={() => setIsRestaurantOpen(false)}
+                    title="닫기"
+                  >
+                    <i className="fas fa-times"></i>
+                  </button>
+                </div>
+                <div className="detail-popup-content">
+                  {isLoadingRestaurants ? (
+                    <div className="loading-message">
+                      <i className="fas fa-spinner fa-spin"></i>
+                      <p>음식점 정보를 불러오는 중...</p>
+                    </div>
+                  ) : (
+                    <div className="restaurant-list">
+                      {restaurants.map((restaurant, index) => (
+                        <div key={index} className="restaurant-item">
+                          <h3 className="restaurant-name">{restaurant.name}</h3>
+                          <div className="restaurant-info">
+                            {restaurant.tel && <p><i className="fas fa-phone"></i> {restaurant.tel}</p>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   )
