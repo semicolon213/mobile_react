@@ -588,114 +588,111 @@ function App() {
       if (hasPreviousTravel) {
         // 이전에 여행지가 생성된 경우, 초기화 확인
         if (window.confirm('기존 여행을 초기화하고 처음부터 다시 시작하시겠습니까?')) {
-          // 기존 마커 제거
-          if (window._randomTravelMarkerA) {
-            window._randomTravelMarkerA.setMap(null);
+          // 모든 지도 요소 제거
+          const removeMapElements = () => {
+            // 모든 마커 제거
+            [window._randomTravelMarkerA, window._randomTravelMarkerB, window._randomTravelInfoWindowB, markerRef.current].forEach(marker => {
+              if (marker) {
+                marker.setMap(null);
+              }
+            });
             window._randomTravelMarkerA = null;
-          }
-          if (window._randomTravelMarkerB) {
-            window._randomTravelMarkerB.setMap(null);
             window._randomTravelMarkerB = null;
-          }
-          if (window._randomTravelInfoWindowB) {
-            window._randomTravelInfoWindowB.setMap(null);
             window._randomTravelInfoWindowB = null;
-          }
-          // 경로 라인 제거
-          if (routeLine) {
-            routeLine.setMap(null);
-            setRouteLine(null);
-          }
-          // 원과 폴리곤 제거
-          if (outerCircleRef.current) {
-            outerCircleRef.current.setMap(null);
-            outerCircleRef.current = null;
-          }
-          if (innerCircleRef.current) {
-            innerCircleRef.current.setMap(null);
-            innerCircleRef.current = null;
-          }
-          if (ringPolygonRef.current) {
-            ringPolygonRef.current.setMap(null);
-            ringPolygonRef.current = null;
-          }
-          // 현재 위치 마커 제거
-          if (markerRef.current) {
-            markerRef.current.setMap(null);
             markerRef.current = null;
-          }
-          // 기존 지도 제거
-          if (mapInstanceRef.current) {
-            mapInstanceRef.current.destroy();
-            mapInstanceRef.current = null;
-          }
-          // 상태 초기화
-          setRouteInfo(null);
-          setSelectedLocation(null);
-          setHasPreviousTravel(false);
-          setSelectedTransports([]);
-          setTime(20);
-          setSavedSettings(null);
-          setIsDetailOpen(false);
-          setIsRestaurantOpen(false);
-          setRestaurants([]);
-          
-          // 새로운 지도 생성
-          if (window.Tmapv2 && mapRef.current) {
+
+            // 경로 라인 제거
+            if (routeLine) {
+              routeLine.setMap(null);
+              setRouteLine(null);
+            }
+
+            // 원과 폴리곤 제거
+            [outerCircleRef.current, innerCircleRef.current, ringPolygonRef.current].forEach(element => {
+              if (element) {
+                element.setMap(null);
+              }
+            });
+            outerCircleRef.current = null;
+            innerCircleRef.current = null;
+            ringPolygonRef.current = null;
+
+            // 지도 제거
+            if (mapInstanceRef.current) {
+              mapInstanceRef.current.destroy();
+              mapInstanceRef.current = null;
+            }
+          };
+
+          // 모든 상태 초기화
+          const resetStates = () => {
+            setRouteInfo(null);
+            setSelectedLocation(null);
+            setHasPreviousTravel(false);
+            setSelectedTransports([]);
+            setTime(20);
+            setSavedSettings(null);
+            setIsDetailOpen(false);
+            setIsRestaurantOpen(false);
+            setRestaurants([]);
+          };
+
+          // 지도 재생성
+          const recreateMap = () => {
+            if (!window.Tmapv2 || !mapRef.current) return;
+
+            const createMapWithPosition = (lat, lng) => {
+              mapInstanceRef.current = new window.Tmapv2.Map(mapRef.current, {
+                center: new window.Tmapv2.LatLng(lat, lng),
+                width: "100%",
+                height: "100%",
+                zoom: 15,
+                zoomControl: false,
+                scrollwheel: true,
+              });
+
+              markerRef.current = new window.Tmapv2.Marker({
+                position: new window.Tmapv2.LatLng(lat, lng),
+                map: mapInstanceRef.current,
+                icon: process.env.PUBLIC_URL + '/images/me.png',
+                iconSize: new window.Tmapv2.Size(120, 120)
+              });
+
+              // 주소 변환은 비동기로 처리
+              const url = `https://apis.openapi.sk.com/tmap/geo/reversegeocoding?version=1&lat=${lat}&lon=${lng}&coordType=WGS84GEO&addressType=A10&appKey=${TMAP_API_KEY}`;
+              fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                  if (data?.addressInfo) {
+                    const { legalDong, roadName, buildingName } = data.addressInfo;
+                    setAddress(`${legalDong} ${roadName}${buildingName ? ' ' + buildingName : ''}`);
+                  } else {
+                    setAddress(`위도: ${lat.toFixed(5)}, 경도: ${lng.toFixed(5)}`);
+                  }
+                })
+                .catch(() => {
+                  setAddress(`위도: ${lat.toFixed(5)}, 경도: ${lng.toFixed(5)}`);
+                });
+            };
+
+            // 위치 권한 확인 및 지도 생성
             navigator.geolocation.getCurrentPosition(
               (position) => {
-                mapInstanceRef.current = new window.Tmapv2.Map(mapRef.current, {
-                  center: new window.Tmapv2.LatLng(position.coords.latitude, position.coords.longitude),
-                  width: "100%",
-                  height: "100%",
-                  zoom: 15,
-                  zoomControl: false,
-                  scrollwheel: true,
-                });
-                // 현재 위치로 마커 표시
-                markerRef.current = new window.Tmapv2.Marker({
-                  position: new window.Tmapv2.LatLng(position.coords.latitude, position.coords.longitude),
-                  map: mapInstanceRef.current,
-                  icon: process.env.PUBLIC_URL + '/images/me.png',
-                  iconSize: new window.Tmapv2.Size(120, 120)
-                });
-                // 주소 변환
-                const url = `https://apis.openapi.sk.com/tmap/geo/reversegeocoding?version=1&lat=${position.coords.latitude}&lon=${position.coords.longitude}&coordType=WGS84GEO&addressType=A10&appKey=${TMAP_API_KEY}`;
-                fetch(url)
-                  .then(response => response.json())
-                  .then(data => {
-                    if (data && data.addressInfo) {
-                      const { legalDong, roadName, buildingName } = data.addressInfo;
-                      const simplifiedAddress = `${legalDong} ${roadName}${buildingName ? ' ' + buildingName : ''}`;
-                      setAddress(simplifiedAddress);
-                    } else {
-                      setAddress(`위도: ${position.coords.latitude.toFixed(5)}, 경도: ${position.coords.longitude.toFixed(5)}`);
-                    }
-                    // 지도 생성이 완료된 후 설정창 표시
-                    setIsSettingsOpen(true);
-                  })
-                  .catch((error) => {
-                    console.error(error);
-                    setAddress(`위도: ${position.coords.latitude.toFixed(5)}, 경도: ${position.coords.longitude.toFixed(5)}`);
-                    // 에러가 발생해도 설정창 표시
-                    setIsSettingsOpen(true);
-                  });
+                createMapWithPosition(position.coords.latitude, position.coords.longitude);
+                setIsSettingsOpen(true);
               },
               () => {
-                // 위치 권한이 없는 경우 기본 위치로 지도 생성
-                mapInstanceRef.current = new window.Tmapv2.Map(mapRef.current, {
-                  center: new window.Tmapv2.LatLng(37.49241689559544, 127.03171389453507),
-                  width: "100%",
-                  height: "100%",
-                  zoom: 15,
-                  zoomControl: false,
-                  scrollwheel: true,
-                });
-                // 지도 생성이 완료된 후 설정창 표시
+                createMapWithPosition(37.49241689559544, 127.03171389453507);
                 setIsSettingsOpen(true);
-              }
+              },
+              { enableHighAccuracy: true, timeout: 3000, maximumAge: 0 }
             );
-          }
+          };
+
+          // 초기화 실행
+          removeMapElements();
+          resetStates();
+          recreateMap();
         }
       } else {
         // 첫 여행지 생성인 경우, 바로 생성
