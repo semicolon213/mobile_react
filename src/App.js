@@ -412,13 +412,28 @@ function App() {
         const itinerary = data.metaData.plan.itineraries[0];
         
         // 거리 계산 (미터를 킬로미터로 변환)
-        const totalDistance = (itinerary.distance || 0) / 1000;
-        
-        // 시간 계산 (초를 분으로 변환)
-        const totalTime = Math.round((itinerary.duration || 0) / 60);
-        
-        // 요금 계산
-        const totalFare = itinerary.fare ? itinerary.fare.regular.totalFare : 0;
+        let totalDistance = 0;
+        let totalTime = 0;
+        let totalFare = 0;
+
+        // 각 구간별 거리와 시간 합산
+        if (itinerary.legs && itinerary.legs.length > 0) {
+          itinerary.legs.forEach(leg => {
+            if (leg.distance) {
+              totalDistance += leg.distance;
+            }
+            if (leg.duration) {
+              totalTime += leg.duration;
+            }
+            if (leg.fare && leg.fare.regular && leg.fare.regular.totalFare) {
+              totalFare += leg.fare.regular.totalFare;
+            }
+          });
+        }
+
+        // 거리와 시간 변환
+        totalDistance = totalDistance / 1000; // 미터를 킬로미터로 변환
+        totalTime = Math.round(totalTime / 60); // 초를 분으로 변환
 
         // 경로 정보 설정
         setRouteInfo({
