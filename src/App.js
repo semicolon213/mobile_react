@@ -606,6 +606,19 @@ function App() {
             routeLine.setMap(null);
             setRouteLine(null);
           }
+          // 원과 폴리곤 제거
+          if (outerCircleRef.current) {
+            outerCircleRef.current.setMap(null);
+            outerCircleRef.current = null;
+          }
+          if (innerCircleRef.current) {
+            innerCircleRef.current.setMap(null);
+            innerCircleRef.current = null;
+          }
+          if (ringPolygonRef.current) {
+            ringPolygonRef.current.setMap(null);
+            ringPolygonRef.current = null;
+          }
           // 상태 초기화
           setRouteInfo(null);
           setSelectedLocation(null);
