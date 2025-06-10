@@ -22,6 +22,7 @@ function App() {
   const [isRestaurantOpen, setIsRestaurantOpen] = useState(false);
   const [restaurants, setRestaurants] = useState([]);
   const [isLoadingRestaurants, setIsLoadingRestaurants] = useState(false);
+  const [hasLocationPermission, setHasLocationPermission] = useState(false);
 
   // 지도, 마커, 원, 폴리곤 등 지도 객체를 저장할 ref 선언
   const mapRef = useRef(null);
@@ -53,6 +54,7 @@ function App() {
         (position) => {
           const latitude = position.coords.latitude;
           const longitude = position.coords.longitude;
+          setHasLocationPermission(true);
 
           if (latitude !== undefined && longitude !== undefined) {
             // Tmap API로 위경도를 주소로 변환
@@ -87,6 +89,9 @@ function App() {
                 setAddress(`위도: ${latitude.toFixed(5)}, 경도: ${longitude.toFixed(5)}`);
               });
           }
+        },
+        () => {
+          setHasLocationPermission(false);
         }
       );
     }
@@ -595,6 +600,7 @@ function App() {
             className="settings-btn"
             onClick={() => setIsSettingsOpen(true)}
             title="설정"
+            disabled={!hasLocationPermission}
           >
             <i className="fas fa-cog"></i>
           </button>
@@ -613,69 +619,73 @@ function App() {
             </button>
           </div>
 
-          {/* 여행 정보 표시 */}
-          <div className="travel-info">
-            {routeInfo ? (
-              <div className="travel-info-section">
-                <div className="travel-info-header">
-                  <h3 className="section-title">여행 정보</h3>
-                  <div className="travel-info-buttons">
-                  <button 
-                    className="detail-btn"
-                    onClick={() => setIsDetailOpen(true)}
-                    title="상세 정보 보기"
-                  >
-                    <i className="fas fa-info-circle"></i>
-                  </button>
-                    <button 
-                      className="restaurant-btn"
-                      onClick={openNearbyRestaurants}
-                      title="주변 음식점 찾기"
-                    >
-                      <i className="fas fa-utensils"></i>
-                    </button>
-                    <button 
-                      className="nav-btn"
-                      onClick={openNavigation}
-                      title="티맵 네비게이션 열기"
-                    >
-                      <i className="fas fa-directions"></i>
-                    </button>
-                  </div>
-                </div>
-                <div className="route-info">
-                  <div className="route-info-item destination-info">
-                    <i className="fas fa-map-marker-alt"></i>
-                    <span>{selectedLocation.name}</span>
-                  </div>
-                  <div className="route-info-grid">
-                  <div className="route-info-item">
-                      <i className="fas fa-road"></i>
-                      <span>{routeInfo.distance}km</span>
-                  </div>
-                    <div className="route-info-item">
-                      <i className="fas fa-clock"></i>
-                      <span>{routeInfo.time}분</span>
+          {hasLocationPermission && (
+            <>
+              {/* 여행 정보 표시 */}
+              <div className="travel-info">
+                {routeInfo ? (
+                  <div className="travel-info-section">
+                    <div className="travel-info-header">
+                      <h3 className="section-title">여행 정보</h3>
+                      <div className="travel-info-buttons">
+                        <button 
+                          className="detail-btn"
+                          onClick={() => setIsDetailOpen(true)}
+                          title="상세 정보 보기"
+                        >
+                          <i className="fas fa-info-circle"></i>
+                        </button>
+                        <button 
+                          className="restaurant-btn"
+                          onClick={openNearbyRestaurants}
+                          title="주변 음식점 찾기"
+                        >
+                          <i className="fas fa-utensils"></i>
+                        </button>
+                        <button 
+                          className="nav-btn"
+                          onClick={openNavigation}
+                          title="티맵 네비게이션 열기"
+                        >
+                          <i className="fas fa-directions"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <div className="route-info">
+                      <div className="route-info-item destination-info">
+                        <i className="fas fa-map-marker-alt"></i>
+                        <span>{selectedLocation.name}</span>
+                      </div>
+                      <div className="route-info-grid">
+                        <div className="route-info-item">
+                          <i className="fas fa-road"></i>
+                          <span>{routeInfo.distance}km</span>
+                        </div>
+                        <div className="route-info-item">
+                          <i className="fas fa-clock"></i>
+                          <span>{routeInfo.time}분</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="no-route-message">
+                    <i className="fas fa-map-marked-alt"></i>
+                    <p>랜덤 여행을 시작하면 여행 정보가 표시됩니다.</p>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="no-route-message">
-                <i className="fas fa-map-marked-alt"></i>
-                <p>랜덤 여행을 시작하면 여행 정보가 표시됩니다.</p>
-              </div>
-            )}
-          </div>
 
-          {/* 랜덤 여행 버튼 */}
-          <button
-            className="start-btn"
-            onClick={handleRandomTravelWithSettings}
-          >
-            <i className="fas fa-random"></i>
-            랜덤 여행 시작하기
-          </button>
+              {/* 랜덤 여행 버튼 */}
+              <button
+                className="start-btn"
+                onClick={handleRandomTravelWithSettings}
+              >
+                <i className="fas fa-random"></i>
+                랜덤 여행 시작하기
+              </button>
+            </>
+          )}
         </main>
       </div>
 

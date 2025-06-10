@@ -1086,3 +1086,8 @@ body, .app-wrapper, .app-container {
   stroke-dashoffset: 1000;
   animation: pathDraw 1.5s ease-out forwards;
 }
+
+.settings-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
