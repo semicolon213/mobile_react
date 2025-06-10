@@ -587,7 +587,7 @@ function App() {
     if (savedSettings) {
       if (hasPreviousTravel) {
         // 이전에 여행지가 생성된 경우, 초기화 확인
-        if (window.confirm('기존 여행을 초기화하고 재설정 하시겠습니까?')) {
+        if (window.confirm('기존 여행을 초기화하고 처음부터 다시 시작하시겠습니까?')) {
           // 기존 마커 제거
           if (window._randomTravelMarkerA) {
             window._randomTravelMarkerA.setMap(null);
@@ -623,6 +623,13 @@ function App() {
           setRouteInfo(null);
           setSelectedLocation(null);
           setHasPreviousTravel(false);
+          setSelectedTransports([]);
+          setTime(20);
+          setSavedSettings(null);
+          setIsSettingsOpen(true);
+          setIsDetailOpen(false);
+          setIsRestaurantOpen(false);
+          setRestaurants([]);
           // 지도 중심을 현재 위치로 이동
           if (markerRef.current && mapInstanceRef.current) {
             const position = markerRef.current.getPosition();
