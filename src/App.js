@@ -422,7 +422,10 @@ function App() {
             if (leg.distance) {
               totalDistance += leg.distance;
             }
-            if (leg.duration) {
+            // 시간 계산 수정
+            if (leg.time) {
+              totalTime += leg.time;
+            } else if (leg.duration) {
               totalTime += leg.duration;
             }
             if (leg.fare && leg.fare.regular && leg.fare.regular.totalFare) {
@@ -433,7 +436,10 @@ function App() {
 
         // 거리와 시간 변환
         totalDistance = totalDistance / 1000; // 미터를 킬로미터로 변환
-        totalTime = Math.round(totalTime / 60); // 초를 분으로 변환
+        // 시간이 초 단위인 경우 분으로 변환
+        if (totalTime > 100) { // 100분 이상이면 초 단위로 가정
+          totalTime = Math.round(totalTime / 60);
+        }
 
         // 경로 정보 설정
         setRouteInfo({
