@@ -57,7 +57,21 @@ function App() {
           setHasLocationPermission(true);
 
           if (latitude !== undefined && longitude !== undefined) {
-            // Tmap API로 위경도를 주소로 변환
+            // 먼저 지도 이동 및 마커 표시
+            if (window.Tmapv2 && mapInstanceRef.current) {
+              if (markerRef.current) {
+                markerRef.current.setMap(null);
+              }
+              markerRef.current = new window.Tmapv2.Marker({
+                position: new window.Tmapv2.LatLng(latitude, longitude),
+                map: mapInstanceRef.current,
+                icon: process.env.PUBLIC_URL + '/images/me.png',
+                iconSize: new window.Tmapv2.Size(120, 120)
+              });
+              mapInstanceRef.current.setCenter(new window.Tmapv2.LatLng(latitude, longitude));
+            }
+
+            // 그 다음 주소 변환 (비동기)
             const url = `https://apis.openapi.sk.com/tmap/geo/reversegeocoding?version=1&lat=${latitude}&lon=${longitude}&coordType=WGS84GEO&addressType=A10&appKey=${TMAP_API_KEY}`;
 
             fetch(url)
@@ -70,19 +84,6 @@ function App() {
                 } else {
                   setAddress(`위도: ${latitude.toFixed(5)}, 경도: ${longitude.toFixed(5)}`);
                 }
-                // 지도에 마커 표시
-                if (window.Tmapv2 && mapInstanceRef.current) {
-                  if (markerRef.current) {
-                    markerRef.current.setMap(null);
-                  }
-                  markerRef.current = new window.Tmapv2.Marker({
-                    position: new window.Tmapv2.LatLng(latitude, longitude),
-                    map: mapInstanceRef.current,
-                    icon: process.env.PUBLIC_URL + '/images/me.png',
-                    iconSize: new window.Tmapv2.Size(120, 120)
-                  });
-                  mapInstanceRef.current.setCenter(new window.Tmapv2.LatLng(latitude, longitude));
-                }
               })
               .catch((error) => {
                 console.error(error);
@@ -92,6 +93,11 @@ function App() {
         },
         () => {
           setHasLocationPermission(false);
+        },
+        {
+          enableHighAccuracy: true, // 더 정확한 위치 정보 요청
+          timeout: 5000, // 5초 타임아웃
+          maximumAge: 0 // 캐시된 위치 정보 사용하지 않음
         }
       );
     }
