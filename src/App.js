@@ -636,7 +636,6 @@ function App() {
           setSelectedTransports([]);
           setTime(20);
           setSavedSettings(null);
-          setIsSettingsOpen(true);
           setIsDetailOpen(false);
           setIsRestaurantOpen(false);
           setRestaurants([]);
@@ -672,10 +671,14 @@ function App() {
                     } else {
                       setAddress(`위도: ${position.coords.latitude.toFixed(5)}, 경도: ${position.coords.longitude.toFixed(5)}`);
                     }
+                    // 지도 생성이 완료된 후 설정창 표시
+                    setIsSettingsOpen(true);
                   })
                   .catch((error) => {
                     console.error(error);
                     setAddress(`위도: ${position.coords.latitude.toFixed(5)}, 경도: ${position.coords.longitude.toFixed(5)}`);
+                    // 에러가 발생해도 설정창 표시
+                    setIsSettingsOpen(true);
                   });
               },
               () => {
@@ -688,6 +691,8 @@ function App() {
                   zoomControl: false,
                   scrollwheel: true,
                 });
+                // 지도 생성이 완료된 후 설정창 표시
+                setIsSettingsOpen(true);
               }
             );
           }
