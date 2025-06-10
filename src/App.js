@@ -49,59 +49,82 @@ function App() {
 
   // 현재 위치 가져오기 함수 (주소 변환 포함)
   const getCurrentLocation = useCallback(() => {
-    if (navigator.geolocation) {
+    if (!hasLocationPermission) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+            setHasLocationPermission(true);
+            updateLocation(latitude, longitude);
+          },
+          () => {
+            setHasLocationPermission(false);
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+          }
+        );
+      }
+    } else {
+      // 이미 권한이 있는 경우 바로 위치 정보 요청
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const latitude = position.coords.latitude;
           const longitude = position.coords.longitude;
-          setHasLocationPermission(true);
-
-          if (latitude !== undefined && longitude !== undefined) {
-            // 먼저 지도 이동 및 마커 표시
-            if (window.Tmapv2 && mapInstanceRef.current) {
-              if (markerRef.current) {
-                markerRef.current.setMap(null);
-              }
-              markerRef.current = new window.Tmapv2.Marker({
-                position: new window.Tmapv2.LatLng(latitude, longitude),
-                map: mapInstanceRef.current,
-                icon: process.env.PUBLIC_URL + '/images/me.png',
-                iconSize: new window.Tmapv2.Size(120, 120)
-              });
-              mapInstanceRef.current.setCenter(new window.Tmapv2.LatLng(latitude, longitude));
-            }
-
-            // 그 다음 주소 변환 (비동기)
-            const url = `https://apis.openapi.sk.com/tmap/geo/reversegeocoding?version=1&lat=${latitude}&lon=${longitude}&coordType=WGS84GEO&addressType=A10&appKey=${TMAP_API_KEY}`;
-
-            fetch(url)
-              .then(response => response.json())
-              .then(data => {
-                if (data && data.addressInfo) {
-                  const { legalDong, roadName, buildingName } = data.addressInfo;
-                  const simplifiedAddress = `${legalDong} ${roadName}${buildingName ? ' ' + buildingName : ''}`;
-                  setAddress(simplifiedAddress);
-                } else {
-                  setAddress(`위도: ${latitude.toFixed(5)}, 경도: ${longitude.toFixed(5)}`);
-                }
-              })
-              .catch((error) => {
-                console.error(error);
-                setAddress(`위도: ${latitude.toFixed(5)}, 경도: ${longitude.toFixed(5)}`);
-              });
-          }
+          updateLocation(latitude, longitude);
         },
         () => {
           setHasLocationPermission(false);
         },
         {
-          enableHighAccuracy: true, // 더 정확한 위치 정보 요청
-          timeout: 5000, // 5초 타임아웃
-          maximumAge: 0 // 캐시된 위치 정보 사용하지 않음
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0
         }
       );
     }
-  }, [])
+  }, [hasLocationPermission]);
+
+  // 위치 정보 업데이트 함수 분리
+  const updateLocation = useCallback((latitude, longitude) => {
+    if (latitude !== undefined && longitude !== undefined) {
+      // 먼저 지도 이동 및 마커 표시
+      if (window.Tmapv2 && mapInstanceRef.current) {
+        if (markerRef.current) {
+          markerRef.current.setMap(null);
+        }
+        markerRef.current = new window.Tmapv2.Marker({
+          position: new window.Tmapv2.LatLng(latitude, longitude),
+          map: mapInstanceRef.current,
+          icon: process.env.PUBLIC_URL + '/images/me.png',
+          iconSize: new window.Tmapv2.Size(120, 120)
+        });
+        mapInstanceRef.current.setCenter(new window.Tmapv2.LatLng(latitude, longitude));
+      }
+
+      // 그 다음 주소 변환 (비동기)
+      const url = `https://apis.openapi.sk.com/tmap/geo/reversegeocoding?version=1&lat=${latitude}&lon=${longitude}&coordType=WGS84GEO&addressType=A10&appKey=${TMAP_API_KEY}`;
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          if (data && data.addressInfo) {
+            const { legalDong, roadName, buildingName } = data.addressInfo;
+            const simplifiedAddress = `${legalDong} ${roadName}${buildingName ? ' ' + buildingName : ''}`;
+            setAddress(simplifiedAddress);
+          } else {
+            setAddress(`위도: ${latitude.toFixed(5)}, 경도: ${longitude.toFixed(5)}`);
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+          setAddress(`위도: ${latitude.toFixed(5)}, 경도: ${longitude.toFixed(5)}`);
+        });
+    }
+  }, []);
 
   // 컴포넌트 마운트 시 현재 위치 가져오고 지도 생성
   useEffect(() => {
