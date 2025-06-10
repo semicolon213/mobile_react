@@ -347,7 +347,7 @@ body, .app-wrapper, .app-container {
   color: var(--main-text-light);
   border: none;
   border-radius: 1.2rem;
-  font-size: 1.4rem;
+  font-size: 2.8rem;
   font-weight: 500;
   cursor: pointer;
   animation: fadeIn 0.5s ease-out;
@@ -1089,4 +1089,23 @@ body, .app-wrapper, .app-container {
 .settings-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.detail-btn:disabled,
+.nav-btn:disabled,
+.restaurant-btn:disabled,
+.start-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--main-red);
+  color: var(--main-text-light);
+}
+
+.detail-btn:disabled:hover,
+.nav-btn:disabled:hover,
+.restaurant-btn:disabled:hover,
+.start-btn:disabled:hover {
+  background: var(--main-red);
+  color: var(--main-text-light);
+  opacity: 0.5;
 }

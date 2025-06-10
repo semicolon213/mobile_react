@@ -619,73 +619,73 @@ function App() {
             </button>
           </div>
 
-          {hasLocationPermission && (
-            <>
-              {/* 여행 정보 표시 */}
-              <div className="travel-info">
-                {routeInfo ? (
-                  <div className="travel-info-section">
-                    <div className="travel-info-header">
-                      <h3 className="section-title">여행 정보</h3>
-                      <div className="travel-info-buttons">
-                        <button 
-                          className="detail-btn"
-                          onClick={() => setIsDetailOpen(true)}
-                          title="상세 정보 보기"
-                        >
-                          <i className="fas fa-info-circle"></i>
-                        </button>
-                        <button 
-                          className="restaurant-btn"
-                          onClick={openNearbyRestaurants}
-                          title="주변 음식점 찾기"
-                        >
-                          <i className="fas fa-utensils"></i>
-                        </button>
-                        <button 
-                          className="nav-btn"
-                          onClick={openNavigation}
-                          title="티맵 네비게이션 열기"
-                        >
-                          <i className="fas fa-directions"></i>
-                        </button>
-                      </div>
+          {/* 여행 정보 표시 */}
+          <div className="travel-info">
+            {routeInfo ? (
+              <div className="travel-info-section">
+                <div className="travel-info-header">
+                  <h3 className="section-title">여행 정보</h3>
+                  <div className="travel-info-buttons">
+                    <button 
+                      className="detail-btn"
+                      onClick={() => setIsDetailOpen(true)}
+                      title="상세 정보 보기"
+                      disabled={!hasLocationPermission}
+                    >
+                      <i className="fas fa-info-circle"></i>
+                    </button>
+                    <button 
+                      className="restaurant-btn"
+                      onClick={openNearbyRestaurants}
+                      title="주변 음식점 찾기"
+                      disabled={!hasLocationPermission}
+                    >
+                      <i className="fas fa-utensils"></i>
+                    </button>
+                    <button 
+                      className="nav-btn"
+                      onClick={openNavigation}
+                      title="티맵 네비게이션 열기"
+                      disabled={!hasLocationPermission}
+                    >
+                      <i className="fas fa-directions"></i>
+                    </button>
+                  </div>
+                </div>
+                <div className="route-info">
+                  <div className="route-info-item destination-info">
+                    <i className="fas fa-map-marker-alt"></i>
+                    <span>{selectedLocation.name}</span>
+                  </div>
+                  <div className="route-info-grid">
+                    <div className="route-info-item">
+                      <i className="fas fa-road"></i>
+                      <span>{routeInfo.distance}km</span>
                     </div>
-                    <div className="route-info">
-                      <div className="route-info-item destination-info">
-                        <i className="fas fa-map-marker-alt"></i>
-                        <span>{selectedLocation.name}</span>
-                      </div>
-                      <div className="route-info-grid">
-                        <div className="route-info-item">
-                          <i className="fas fa-road"></i>
-                          <span>{routeInfo.distance}km</span>
-                        </div>
-                        <div className="route-info-item">
-                          <i className="fas fa-clock"></i>
-                          <span>{routeInfo.time}분</span>
-                        </div>
-                      </div>
+                    <div className="route-info-item">
+                      <i className="fas fa-clock"></i>
+                      <span>{routeInfo.time}분</span>
                     </div>
                   </div>
-                ) : (
-                  <div className="no-route-message">
-                    <i className="fas fa-map-marked-alt"></i>
-                    <p>랜덤 여행을 시작하면 여행 정보가 표시됩니다.</p>
-                  </div>
-                )}
+                </div>
               </div>
+            ) : (
+              <div className="no-route-message">
+                <i className="fas fa-map-marked-alt"></i>
+                <p>랜덤 여행을 시작하면 여행 정보가 표시됩니다.</p>
+              </div>
+            )}
+          </div>
 
-              {/* 랜덤 여행 버튼 */}
-              <button
-                className="start-btn"
-                onClick={handleRandomTravelWithSettings}
-              >
-                <i className="fas fa-random"></i>
-                랜덤 여행 시작하기
-              </button>
-            </>
-          )}
+          {/* 랜덤 여행 버튼 */}
+          <button
+            className="start-btn"
+            onClick={handleRandomTravelWithSettings}
+            disabled={!hasLocationPermission}
+          >
+            <i className="fas fa-random"></i>
+            랜덤 여행 시작하기
+          </button>
         </main>
       </div>
 
