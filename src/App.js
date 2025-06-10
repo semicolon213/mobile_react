@@ -22,8 +22,6 @@ function App() {
   const [isRestaurantOpen, setIsRestaurantOpen] = useState(false);
   const [restaurants, setRestaurants] = useState([]);
   const [isLoadingRestaurants, setIsLoadingRestaurants] = useState(false);
-  // 위치 권한 상태 추가
-  const [setLocationPermission] = useState(null);
 
   // 지도, 마커, 원, 폴리곤 등 지도 객체를 저장할 ref 선언
   const mapRef = useRef(null);
@@ -48,44 +46,8 @@ function App() {
     });
   }
 
-  // 위치 권한 확인 함수
-  const checkLocationPermission = useCallback(async () => {
-    try {
-      const result = await navigator.permissions.query({ name: 'geolocation' });
-      setLocationPermission(result.state);
-      
-      if (result.state === 'denied') {
-        alert('위치 권한이 거부되었습니다. 위치 권한을 허용해야 서비스를 이용할 수 있습니다.');
-        return false;
-      }
-      
-      if (result.state === 'prompt') {
-        const permission = await new Promise((resolve) => {
-          navigator.geolocation.getCurrentPosition(
-            () => resolve(true),
-            () => resolve(false)
-          );
-        });
-        
-        if (!permission) {
-          alert('위치 권한이 필요합니다. 위치 권한을 허용해주세요.');
-          return false;
-        }
-      }
-      
-      return true;
-    } catch (error) {
-      console.error('위치 권한 확인 중 오류 발생:', error);
-      alert('위치 권한을 확인할 수 없습니다.');
-      return false;
-    }
-  }, []);
-
-  // 현재 위치 가져오기 함수 수정
-  const getCurrentLocation = useCallback(async () => {
-    const hasPermission = await checkLocationPermission();
-    if (!hasPermission) return;
-
+  // 현재 위치 가져오기 함수 (주소 변환 포함)
+  const getCurrentLocation = useCallback(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -120,83 +82,30 @@ function App() {
                   mapInstanceRef.current.setCenter(new window.Tmapv2.LatLng(latitude, longitude));
                 }
               })
-              .catch(() => {
-                // 주소 변환 실패 시 좌표값 표시
+              .catch((error) => {
+                console.error(error);
                 setAddress(`위도: ${latitude.toFixed(5)}, 경도: ${longitude.toFixed(5)}`);
-                // 지도에 마커 표시
-                if (window.Tmapv2 && mapInstanceRef.current) {
-                  if (markerRef.current) {
-                    markerRef.current.setMap(null);
-                  }
-                  markerRef.current = new window.Tmapv2.Marker({
-                    position: new window.Tmapv2.LatLng(latitude, longitude),
-                    map: mapInstanceRef.current,
-                    icon: process.env.PUBLIC_URL + '/images/me.png',
-                    iconSize: new window.Tmapv2.Size(120, 120)
-                  });
-                  mapInstanceRef.current.setCenter(new window.Tmapv2.LatLng(latitude, longitude));
-                }
               });
-          }
-        },
-        () => {
-          // 위치 가져오기 실패 시 기본 좌표값 표시
-          setAddress('위도: 37.5665, 경도: 126.9780');
-          // 기본 위치(서울시청)에 마커 표시
-          if (window.Tmapv2 && mapInstanceRef.current) {
-            if (markerRef.current) {
-              markerRef.current.setMap(null);
-            }
-            markerRef.current = new window.Tmapv2.Marker({
-              position: new window.Tmapv2.LatLng(37.5665, 126.9780),
-              map: mapInstanceRef.current,
-              icon: process.env.PUBLIC_URL + '/images/me.png',
-              iconSize: new window.Tmapv2.Size(120, 120)
-            });
-            mapInstanceRef.current.setCenter(new window.Tmapv2.LatLng(37.5665, 126.9780));
           }
         }
       );
-    } else {
-      // 위치 지원하지 않는 경우 기본 좌표값 표시
-      setAddress('위도: 37.5665, 경도: 126.9780');
-      // 기본 위치(서울시청)에 마커 표시
-      if (window.Tmapv2 && mapInstanceRef.current) {
-        if (markerRef.current) {
-          markerRef.current.setMap(null);
-        }
-        markerRef.current = new window.Tmapv2.Marker({
-          position: new window.Tmapv2.LatLng(37.5665, 126.9780),
-          map: mapInstanceRef.current,
-          icon: process.env.PUBLIC_URL + '/images/me.png',
-          iconSize: new window.Tmapv2.Size(120, 120)
-        });
-        mapInstanceRef.current.setCenter(new window.Tmapv2.LatLng(37.5665, 126.9780));
-      }
     }
-  }, [checkLocationPermission]);
+  }, [])
 
-  // 컴포넌트 마운트 시 위치 권한 확인
+  // 컴포넌트 마운트 시 현재 위치 가져오고 지도 생성
   useEffect(() => {
-    const initializeMap = async () => {
-      const hasPermission = await checkLocationPermission();
-      if (hasPermission) {
-        getCurrentLocation();
-        if (window.Tmapv2 && mapRef.current) {
-          mapInstanceRef.current = new window.Tmapv2.Map(mapRef.current, {
-            center: new window.Tmapv2.LatLng(37.49241689559544, 127.03171389453507),
-            width: "100%",
-            height: "100%",
-            zoom: 15,
-            zoomControl: false,
-            scrollwheel: true,
-          });
-        }
-      }
-    };
-    
-    initializeMap();
-  }, [checkLocationPermission, getCurrentLocation]);
+    getCurrentLocation()
+    if (window.Tmapv2 && mapRef.current) {
+      mapInstanceRef.current = new window.Tmapv2.Map(mapRef.current, {
+        center: new window.Tmapv2.LatLng(37.49241689559544, 127.03171389453507),
+        width: "100%",
+        height: "100%",
+        zoom: 15,
+        zoomControl: false,
+        scrollwheel: true,
+      });
+    }
+  }, [getCurrentLocation])
 
   useEffect(() => {
     fetch(process.env.PUBLIC_URL + '/locations.csv')
@@ -508,11 +417,8 @@ function App() {
     }
   }, [routeLine]);
 
-  // 랜덤 여행 시작 함수 수정
-  const handleRandomTravel = useCallback(async () => {
-    const hasPermission = await checkLocationPermission();
-    if (!hasPermission) return;
-
+  // handleRandomTravel에서 분기 호출
+  const handleRandomTravel = useCallback(() => {
     if (
       !markerRef.current ||
       !mapInstanceRef.current ||
@@ -586,7 +492,7 @@ function App() {
       duration: 1000
     });
     setHasPreviousTravel(true);
-  }, [checkLocationPermission, createCarRoute, createTransitRoute, locations, selectedTransports]);
+  }, [createCarRoute, createTransitRoute, locations, selectedTransports]);
 
   // 설정 저장 함수
   const saveSettings = useCallback(() => {
