@@ -510,8 +510,13 @@ function App() {
     setIsSettingsOpen(false);
   }, [selectedTransports, time, address]);
 
-  // 저장된 설정으로 랜덤 여행 시작
+  // 랜덤 여행 시작 시 위치 권한 체크
   const handleRandomTravelWithSettings = useCallback(() => {
+    if (!hasLocationPermission) {
+      getCurrentLocation();
+      return;
+    }
+
     if (savedSettings) {
       if (hasPreviousTravel) {
         // 이전에 여행지가 생성된 경우, 초기화 확인
@@ -528,7 +533,7 @@ function App() {
       alert('먼저 설정을 저장해주세요.');
       setIsSettingsOpen(true);
     }
-  }, [savedSettings, hasPreviousTravel, handleRandomTravel]);
+  }, [savedSettings, hasPreviousTravel, handleRandomTravel, hasLocationPermission, getCurrentLocation]);
 
   // 네비게이션 함수 추가
   const openNavigation = useCallback(() => {
@@ -600,7 +605,6 @@ function App() {
             className="settings-btn"
             onClick={() => setIsSettingsOpen(true)}
             title="설정"
-            disabled={!hasLocationPermission}
           >
             <i className="fas fa-cog"></i>
           </button>
@@ -630,7 +634,6 @@ function App() {
                       className="detail-btn"
                       onClick={() => setIsDetailOpen(true)}
                       title="상세 정보 보기"
-                      disabled={!hasLocationPermission}
                     >
                       <i className="fas fa-info-circle"></i>
                     </button>
@@ -638,7 +641,6 @@ function App() {
                       className="restaurant-btn"
                       onClick={openNearbyRestaurants}
                       title="주변 음식점 찾기"
-                      disabled={!hasLocationPermission}
                     >
                       <i className="fas fa-utensils"></i>
                     </button>
@@ -646,7 +648,6 @@ function App() {
                       className="nav-btn"
                       onClick={openNavigation}
                       title="티맵 네비게이션 열기"
-                      disabled={!hasLocationPermission}
                     >
                       <i className="fas fa-directions"></i>
                     </button>
@@ -681,7 +682,6 @@ function App() {
           <button
             className="start-btn"
             onClick={handleRandomTravelWithSettings}
-            disabled={!hasLocationPermission}
           >
             <i className="fas fa-random"></i>
             랜덤 여행 시작하기
