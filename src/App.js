@@ -120,20 +120,59 @@ function App() {
                   mapInstanceRef.current.setCenter(new window.Tmapv2.LatLng(latitude, longitude));
                 }
               })
-              .catch((error) => {
-                console.error(error);
-                alert('주소 변환에 실패했습니다.');
+              .catch(() => {
+                // 주소 변환 실패 시 좌표값 표시
                 setAddress(`위도: ${latitude.toFixed(5)}, 경도: ${longitude.toFixed(5)}`);
+                // 지도에 마커 표시
+                if (window.Tmapv2 && mapInstanceRef.current) {
+                  if (markerRef.current) {
+                    markerRef.current.setMap(null);
+                  }
+                  markerRef.current = new window.Tmapv2.Marker({
+                    position: new window.Tmapv2.LatLng(latitude, longitude),
+                    map: mapInstanceRef.current,
+                    icon: process.env.PUBLIC_URL + '/images/me.png',
+                    iconSize: new window.Tmapv2.Size(120, 120)
+                  });
+                  mapInstanceRef.current.setCenter(new window.Tmapv2.LatLng(latitude, longitude));
+                }
               });
           }
         },
-        (error) => {
-          console.error('위치 가져오기 오류:', error);
-          alert('위치를 가져오는 데 실패했습니다. 위치 권한을 확인해주세요.');
+        () => {
+          // 위치 가져오기 실패 시 기본 좌표값 표시
+          setAddress('위도: 37.5665, 경도: 126.9780');
+          // 기본 위치(서울시청)에 마커 표시
+          if (window.Tmapv2 && mapInstanceRef.current) {
+            if (markerRef.current) {
+              markerRef.current.setMap(null);
+            }
+            markerRef.current = new window.Tmapv2.Marker({
+              position: new window.Tmapv2.LatLng(37.5665, 126.9780),
+              map: mapInstanceRef.current,
+              icon: process.env.PUBLIC_URL + '/images/me.png',
+              iconSize: new window.Tmapv2.Size(120, 120)
+            });
+            mapInstanceRef.current.setCenter(new window.Tmapv2.LatLng(37.5665, 126.9780));
+          }
         }
       );
     } else {
-      alert('이 브라우저는 위치를 지원하지 않습니다.');
+      // 위치 지원하지 않는 경우 기본 좌표값 표시
+      setAddress('위도: 37.5665, 경도: 126.9780');
+      // 기본 위치(서울시청)에 마커 표시
+      if (window.Tmapv2 && mapInstanceRef.current) {
+        if (markerRef.current) {
+          markerRef.current.setMap(null);
+        }
+        markerRef.current = new window.Tmapv2.Marker({
+          position: new window.Tmapv2.LatLng(37.5665, 126.9780),
+          map: mapInstanceRef.current,
+          icon: process.env.PUBLIC_URL + '/images/me.png',
+          iconSize: new window.Tmapv2.Size(120, 120)
+        });
+        mapInstanceRef.current.setCenter(new window.Tmapv2.LatLng(37.5665, 126.9780));
+      }
     }
   }, [checkLocationPermission]);
 
