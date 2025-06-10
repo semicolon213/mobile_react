@@ -23,7 +23,7 @@ function App() {
   const [restaurants, setRestaurants] = useState([]);
   const [isLoadingRestaurants, setIsLoadingRestaurants] = useState(false);
   // 위치 권한 상태 추가
-  const [locationPermission, setLocationPermission] = useState(null);
+  const [setLocationPermission] = useState(null);
 
   // 지도, 마커, 원, 폴리곤 등 지도 객체를 저장할 ref 선언
   const mapRef = useRef(null);
