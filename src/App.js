@@ -23,7 +23,7 @@ function App() {
   const [restaurants, setRestaurants] = useState([]);
   const [isLoadingRestaurants, setIsLoadingRestaurants] = useState(false);
   const [hasLocationPermission, setHasLocationPermission] = useState(false);
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // 지도, 마커, 원, 폴리곤 등 지도 객체를 저장할 ref 선언
   const mapRef = useRef(null);
@@ -96,52 +96,109 @@ function App() {
           setHasLocationPermission(false);
         },
         {
-          enableHighAccuracy: true,
-          timeout: 5000,
-          maximumAge: 0
+          enableHighAccuracy: true, // 더 정확한 위치 정보 요청
+          timeout: 5000, // 5초 타임아웃
+          maximumAge: 0 // 캐시된 위치 정보 사용하지 않음
         }
       );
     }
   }, [])
 
-  // 컴포넌트 마운트 시 현재 위치 가져오고 지도 생성
+  // 컴포넌트 마운트 시 위치 권한 확인 및 초기화
   useEffect(() => {
-    if (isFirstLoad) {
-      getCurrentLocation();
-      setIsFirstLoad(false);
-    }
-    if (window.Tmapv2 && mapRef.current) {
-      mapInstanceRef.current = new window.Tmapv2.Map(mapRef.current, {
-        center: new window.Tmapv2.LatLng(37.49241689559544, 127.03171389453507),
-        width: "100%",
-        height: "100%",
-        zoom: 15,
-        zoomControl: false,
-        scrollwheel: true,
-      });
-    }
-  }, [getCurrentLocation, isFirstLoad])
-
-  useEffect(() => {
-    fetch(process.env.PUBLIC_URL + '/locations.csv')
-      .then(res => res.text())
-      .then(text => {
-        // CSV 파싱 (첫 줄은 헤더)
-        const lines = text.trim().split('\n').slice(1);
-        const locs = lines.map(line => {
-          const cols = line.split(',');
-          const name = cols[0]; // 관광지명
-          const lat = parseFloat(cols[4]);
-          const lng = parseFloat(cols[5]);
-          if (!isNaN(lat) && !isNaN(lng)) {
-            return { name, lat, lng };
+    const checkLocationPermission = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setHasLocationPermission(true);
+            setIsInitialized(true);
+            // 위치 권한이 있으면 지도 초기화
+            if (window.Tmapv2 && mapRef.current) {
+              mapInstanceRef.current = new window.Tmapv2.Map(mapRef.current, {
+                center: new window.Tmapv2.LatLng(position.coords.latitude, position.coords.longitude),
+                width: "100%",
+                height: "100%",
+                zoom: 15,
+                zoomControl: false,
+                scrollwheel: true,
+              });
+              // 현재 위치로 마커 표시
+              markerRef.current = new window.Tmapv2.Marker({
+                position: new window.Tmapv2.LatLng(position.coords.latitude, position.coords.longitude),
+                map: mapInstanceRef.current,
+                icon: process.env.PUBLIC_URL + '/images/me.png',
+                iconSize: new window.Tmapv2.Size(120, 120)
+              });
+              // 주소 변환
+              const url = `https://apis.openapi.sk.com/tmap/geo/reversegeocoding?version=1&lat=${position.coords.latitude}&lon=${position.coords.longitude}&coordType=WGS84GEO&addressType=A10&appKey=${TMAP_API_KEY}`;
+              fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                  if (data && data.addressInfo) {
+                    const { legalDong, roadName, buildingName } = data.addressInfo;
+                    const simplifiedAddress = `${legalDong} ${roadName}${buildingName ? ' ' + buildingName : ''}`;
+                    setAddress(simplifiedAddress);
+                  } else {
+                    setAddress(`위도: ${position.coords.latitude.toFixed(5)}, 경도: ${position.coords.longitude.toFixed(5)}`);
+                  }
+                })
+                .catch((error) => {
+                  console.error(error);
+                  setAddress(`위도: ${position.coords.latitude.toFixed(5)}, 경도: ${position.coords.longitude.toFixed(5)}`);
+                });
+            }
+          },
+          () => {
+            setHasLocationPermission(false);
+            setIsInitialized(true);
+            // 위치 권한이 없어도 지도는 초기화
+            if (window.Tmapv2 && mapRef.current) {
+              mapInstanceRef.current = new window.Tmapv2.Map(mapRef.current, {
+                center: new window.Tmapv2.LatLng(37.49241689559544, 127.03171389453507),
+                width: "100%",
+                height: "100%",
+                zoom: 15,
+                zoomControl: false,
+                scrollwheel: true,
+              });
+            }
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
           }
-          return null;
-        }).filter(Boolean);
-        console.log('CSV에서 파싱된 위치:', locs);
-        setLocations(locs);
-      });
+        );
+      } else {
+        setHasLocationPermission(false);
+        setIsInitialized(true);
+      }
+    };
+
+    checkLocationPermission();
   }, []);
+
+  // locations.csv 로드
+  useEffect(() => {
+    if (isInitialized) {
+      fetch(process.env.PUBLIC_URL + '/locations.csv')
+        .then(res => res.text())
+        .then(text => {
+          const lines = text.trim().split('\n').slice(1);
+          const locs = lines.map(line => {
+            const cols = line.split(',');
+            const name = cols[0];
+            const lat = parseFloat(cols[4]);
+            const lng = parseFloat(cols[5]);
+            if (!isNaN(lat) && !isNaN(lng)) {
+              return { name, lat, lng };
+            }
+            return null;
+          }).filter(Boolean);
+          setLocations(locs);
+        });
+    }
+  }, [isInitialized]);
 
   // 이동수단/시간 변경 시 원, 도넛형 영역 그리기
   useEffect(() => {
@@ -523,7 +580,7 @@ function App() {
   // 랜덤 여행 시작 시 위치 권한 체크
   const handleRandomTravelWithSettings = useCallback(() => {
     if (!hasLocationPermission) {
-      alert('위치 권한이 필요합니다. 브라우저 설정에서 위치 권한을 허용해주세요.');
+      getCurrentLocation();
       return;
     }
 
@@ -543,16 +600,7 @@ function App() {
       alert('먼저 설정을 저장해주세요.');
       setIsSettingsOpen(true);
     }
-  }, [savedSettings, hasPreviousTravel, handleRandomTravel, hasLocationPermission]);
-
-  // 현재 위치 버튼 클릭 시
-  const handleCurrentLocationClick = useCallback(() => {
-    if (!hasLocationPermission) {
-      alert('위치 권한이 필요합니다. 브라우저 설정에서 위치 권한을 허용해주세요.');
-      return;
-    }
-    getCurrentLocation();
-  }, [getCurrentLocation, hasLocationPermission]);
+  }, [savedSettings, hasPreviousTravel, handleRandomTravel, hasLocationPermission, getCurrentLocation]);
 
   // 네비게이션 함수 추가
   const openNavigation = useCallback(() => {
@@ -612,6 +660,10 @@ function App() {
     }
   };
 
+  if (!isInitialized) {
+    return null; // 초기화 전에는 아무것도 표시하지 않음
+  }
+
   // 렌더링 부분
   return (
     <div className="app-wrapper">
@@ -635,7 +687,7 @@ function App() {
             <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
             <button 
               className="current-location-btn"
-              onClick={handleCurrentLocationClick}
+              onClick={getCurrentLocation}
               title="현재 위치로 이동"
             >
               <i className="fas fa-location-crosshairs"></i>
