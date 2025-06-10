@@ -619,6 +619,16 @@ function App() {
             ringPolygonRef.current.setMap(null);
             ringPolygonRef.current = null;
           }
+          // 현재 위치 마커 제거
+          if (markerRef.current) {
+            markerRef.current.setMap(null);
+            markerRef.current = null;
+          }
+          // 기존 지도 제거
+          if (mapInstanceRef.current) {
+            mapInstanceRef.current.destroy();
+            mapInstanceRef.current = null;
+          }
           // 상태 초기화
           setRouteInfo(null);
           setSelectedLocation(null);
@@ -630,11 +640,56 @@ function App() {
           setIsDetailOpen(false);
           setIsRestaurantOpen(false);
           setRestaurants([]);
-          // 지도 중심을 현재 위치로 이동
-          if (markerRef.current && mapInstanceRef.current) {
-            const position = markerRef.current.getPosition();
-            mapInstanceRef.current.setCenter(position);
-            mapInstanceRef.current.setZoom(15);
+          
+          // 새로운 지도 생성
+          if (window.Tmapv2 && mapRef.current) {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                mapInstanceRef.current = new window.Tmapv2.Map(mapRef.current, {
+                  center: new window.Tmapv2.LatLng(position.coords.latitude, position.coords.longitude),
+                  width: "100%",
+                  height: "100%",
+                  zoom: 15,
+                  zoomControl: false,
+                  scrollwheel: true,
+                });
+                // 현재 위치로 마커 표시
+                markerRef.current = new window.Tmapv2.Marker({
+                  position: new window.Tmapv2.LatLng(position.coords.latitude, position.coords.longitude),
+                  map: mapInstanceRef.current,
+                  icon: process.env.PUBLIC_URL + '/images/me.png',
+                  iconSize: new window.Tmapv2.Size(120, 120)
+                });
+                // 주소 변환
+                const url = `https://apis.openapi.sk.com/tmap/geo/reversegeocoding?version=1&lat=${position.coords.latitude}&lon=${position.coords.longitude}&coordType=WGS84GEO&addressType=A10&appKey=${TMAP_API_KEY}`;
+                fetch(url)
+                  .then(response => response.json())
+                  .then(data => {
+                    if (data && data.addressInfo) {
+                      const { legalDong, roadName, buildingName } = data.addressInfo;
+                      const simplifiedAddress = `${legalDong} ${roadName}${buildingName ? ' ' + buildingName : ''}`;
+                      setAddress(simplifiedAddress);
+                    } else {
+                      setAddress(`위도: ${position.coords.latitude.toFixed(5)}, 경도: ${position.coords.longitude.toFixed(5)}`);
+                    }
+                  })
+                  .catch((error) => {
+                    console.error(error);
+                    setAddress(`위도: ${position.coords.latitude.toFixed(5)}, 경도: ${position.coords.longitude.toFixed(5)}`);
+                  });
+              },
+              () => {
+                // 위치 권한이 없는 경우 기본 위치로 지도 생성
+                mapInstanceRef.current = new window.Tmapv2.Map(mapRef.current, {
+                  center: new window.Tmapv2.LatLng(37.49241689559544, 127.03171389453507),
+                  width: "100%",
+                  height: "100%",
+                  zoom: 15,
+                  zoomControl: false,
+                  scrollwheel: true,
+                });
+              }
+            );
           }
         }
       } else {
