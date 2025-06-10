@@ -342,7 +342,7 @@ body, .app-wrapper, .app-container {
 .route-info-item:nth-child(3) { animation-delay: 0.3s; }
 
 .start-btn {
-  padding: 1.5rem;
+  padding: 2.5rem;
   background: var(--main-red);
   color: var(--main-text-light);
   border: none;
@@ -355,12 +355,11 @@ body, .app-wrapper, .app-container {
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  margin-bottom: 2.5rem;
-  width: calc(100% - 2rem);
-  margin-left: 1rem;
-  margin-right: 1rem;
+  margin-bottom: 1rem;
+  width: 100%;
   transition: all 0.2s ease;
   box-sizing: border-box;
+  height: 8rem;
 }
 
 .start-btn img {
