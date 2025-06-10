@@ -60,34 +60,34 @@ function App() {
           if (latitude !== undefined && longitude !== undefined) {
             // 먼저 지도 이동 및 마커 표시
             if (window.Tmapv2 && mapInstanceRef.current) {
+              // 기존 마커 제거
               if (markerRef.current) {
                 markerRef.current.setMap(null);
               }
+              // 새 마커 생성 및 지도 이동을 동시에 처리
+              const newPosition = new window.Tmapv2.LatLng(latitude, longitude);
+              mapInstanceRef.current.setCenter(newPosition);
               markerRef.current = new window.Tmapv2.Marker({
-                position: new window.Tmapv2.LatLng(latitude, longitude),
+                position: newPosition,
                 map: mapInstanceRef.current,
                 icon: process.env.PUBLIC_URL + '/images/me.png',
                 iconSize: new window.Tmapv2.Size(120, 120)
               });
-              mapInstanceRef.current.setCenter(new window.Tmapv2.LatLng(latitude, longitude));
             }
 
-            // 그 다음 주소 변환 (비동기)
+            // 주소 변환은 비동기로 처리
             const url = `https://apis.openapi.sk.com/tmap/geo/reversegeocoding?version=1&lat=${latitude}&lon=${longitude}&coordType=WGS84GEO&addressType=A10&appKey=${TMAP_API_KEY}`;
-
             fetch(url)
               .then(response => response.json())
               .then(data => {
-                if (data && data.addressInfo) {
+                if (data?.addressInfo) {
                   const { legalDong, roadName, buildingName } = data.addressInfo;
-                  const simplifiedAddress = `${legalDong} ${roadName}${buildingName ? ' ' + buildingName : ''}`;
-                  setAddress(simplifiedAddress);
+                  setAddress(`${legalDong} ${roadName}${buildingName ? ' ' + buildingName : ''}`);
                 } else {
                   setAddress(`위도: ${latitude.toFixed(5)}, 경도: ${longitude.toFixed(5)}`);
                 }
               })
-              .catch((error) => {
-                console.error(error);
+              .catch(() => {
                 setAddress(`위도: ${latitude.toFixed(5)}, 경도: ${longitude.toFixed(5)}`);
               });
           }
@@ -96,13 +96,13 @@ function App() {
           setHasLocationPermission(false);
         },
         {
-          enableHighAccuracy: true, // 더 정확한 위치 정보 요청
-          timeout: 5000, // 5초 타임아웃
-          maximumAge: 0 // 캐시된 위치 정보 사용하지 않음
+          enableHighAccuracy: true,
+          timeout: 3000,
+          maximumAge: 0
         }
       );
     }
-  }, [])
+  }, []);
 
   // 컴포넌트 마운트 시 위치 권한 확인 및 초기화
   useEffect(() => {
@@ -679,11 +679,9 @@ function App() {
             navigator.geolocation.getCurrentPosition(
               (position) => {
                 createMapWithPosition(position.coords.latitude, position.coords.longitude);
-                setIsSettingsOpen(true);
               },
               () => {
                 createMapWithPosition(37.49241689559544, 127.03171389453507);
-                setIsSettingsOpen(true);
               },
               { enableHighAccuracy: true, timeout: 3000, maximumAge: 0 }
             );
