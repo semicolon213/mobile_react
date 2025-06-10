@@ -709,9 +709,11 @@ function App() {
       return;
     }
 
-    const url = `https://apis.openapi.sk.com/tmap/app/routes?appKey=${TMAP_API_KEY}&goalname=${encodeURIComponent(selectedLocation.name)}&goalx=${selectedLocation.lng}&goaly=${selectedLocation.lat}`;
+    // 이동수단에 따라 다른 URL 파라미터 사용
+    const transportType = selectedTransports.includes('public') ? 'public' : 'car';
+    const url = `https://apis.openapi.sk.com/tmap/app/routes?appKey=${TMAP_API_KEY}&goalname=${encodeURIComponent(selectedLocation.name)}&goalx=${selectedLocation.lng}&goaly=${selectedLocation.lat}&routeType=${transportType}`;
     window.open(url, '_blank');
-  }, [selectedLocation]);
+  }, [selectedLocation, selectedTransports]);
 
   // 음식점 찾기 함수 추가
   const openNearbyRestaurants = async () => {
