@@ -587,10 +587,35 @@ function App() {
     if (savedSettings) {
       if (hasPreviousTravel) {
         // 이전에 여행지가 생성된 경우, 초기화 확인
-        if (window.confirm('기존 여행을 초기화하고 재설정 해야합니다. 초기화 하시겠습니까?')) {
-          // 새로고침 전에 hasPreviousTravel을 false로 설정
+        if (window.confirm('기존 여행을 초기화하고 재설정 하시겠습니까?')) {
+          // 기존 마커 제거
+          if (window._randomTravelMarkerA) {
+            window._randomTravelMarkerA.setMap(null);
+            window._randomTravelMarkerA = null;
+          }
+          if (window._randomTravelMarkerB) {
+            window._randomTravelMarkerB.setMap(null);
+            window._randomTravelMarkerB = null;
+          }
+          if (window._randomTravelInfoWindowB) {
+            window._randomTravelInfoWindowB.setMap(null);
+            window._randomTravelInfoWindowB = null;
+          }
+          // 경로 라인 제거
+          if (routeLine) {
+            routeLine.setMap(null);
+            setRouteLine(null);
+          }
+          // 상태 초기화
+          setRouteInfo(null);
+          setSelectedLocation(null);
           setHasPreviousTravel(false);
-          window.location.reload();
+          // 지도 중심을 현재 위치로 이동
+          if (markerRef.current && mapInstanceRef.current) {
+            const position = markerRef.current.getPosition();
+            mapInstanceRef.current.setCenter(position);
+            mapInstanceRef.current.setZoom(15);
+          }
         }
       } else {
         // 첫 여행지 생성인 경우, 바로 생성
@@ -600,7 +625,7 @@ function App() {
       alert('먼저 설정을 저장해주세요.');
       setIsSettingsOpen(true);
     }
-  }, [savedSettings, hasPreviousTravel, handleRandomTravel, hasLocationPermission, getCurrentLocation]);
+  }, [savedSettings, hasPreviousTravel, handleRandomTravel, hasLocationPermission, getCurrentLocation, routeLine]);
 
   // 네비게이션 함수 추가
   const openNavigation = useCallback(() => {
